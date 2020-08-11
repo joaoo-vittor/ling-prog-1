@@ -1,0 +1,60 @@
+/*
+
+#include <stdio.h>
+
+int main( void )
+{
+
+  int linha = 10; // inicializa linha
+  int coluna; // declara coluna
+
+
+  while ( linha >= 1 ) { // loop até linha < 1
+
+    coluna = 1; // define coluna como 1 quando a iteração começa
+
+
+      while ( coluna <= 10 ) { // loop 10 vezes
+
+        printf( "%s", linha % 2 ? "<":">" ); // saída
+
+        coluna++; // incrementa coluna
+
+      } // fim do while interno
+
+    linha--; // decrementa linha
+
+    printf( "\n" ); // inicia nova linha de saída
+
+  } // fim do while externo
+
+  return 0; // indica que o programa foi concluído com sucesso
+} // fim da função main
+
+*/
+
+/*
+
+O PROGRAMA ACIMA EXIBIRA:
+
+  >>>>>>>>>
+  <<<<<<<<<
+  >>>>>>>>>
+  <<<<<<<<<
+  >>>>>>>>>
+  <<<<<<<<<
+  >>>>>>>>>
+  <<<<<<<<<
+  >>>>>>>>>
+  <<<<<<<<<
+
+  A condição (linha >= 1) do primeiro while é satisfeita, assim entra no mesmo,
+  a condição (coluna <= 10) do segundo while é satisfeita,sendo assim, o segundo
+  while sera execultado até que a vairavel coluna seja menor ou igual a 10,
+  dentro do segundo while encontra-se uma condição ternaria (linha % 2 ? "<":">"),
+  que exibirá o caracter > para os numeros impras ou o caracter < para os pares,
+  depois de 10 iterações o decrementa 1 da variavel linha e execulta a função
+  printf("\n") que pulara uma linha, assim retornado ao primerio while e o execultando
+  até que a condição naão sejá mais satisfeita.
+
+*/
