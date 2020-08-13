@@ -1,5 +1,9 @@
 /*
 
+Disciplina : 2020.1 LABORATÓRIO DE PROGRAMAÇÃO I
+Aluno: João Vitor Barbosa da Silva
+
+
 3.22 Pré-incrementando versus pós-incrementando.
 Escreva um programa que demonstre a diferença entre
 pré-decrementar e pós-decrementar usando o operador
@@ -17,6 +21,6 @@ int main() {
 
     printf("%d   %d \n", i, p);
   }
-  
+
   return 0;
 }

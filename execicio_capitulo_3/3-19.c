@@ -1,5 +1,9 @@
 /*
 
+Disciplina : 2020.1 LABORATÓRIO DE PROGRAMAÇÃO I
+Aluno: João Vitor Barbosa da Silva
+
+
 3.19 Calculadora de comissão de vendas. Uma grande
 companhia química paga seus vendedores por comissão.
 Os vendedores recebem R$ 200,00 por semana, mais 9
@@ -40,6 +44,6 @@ int main() {
     }
 
   }
-  
+
   return 0;
 }

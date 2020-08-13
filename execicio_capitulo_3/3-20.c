@@ -1,5 +1,9 @@
 /*
 
+Disciplina : 2020.1 LABORATÓRIO DE PROGRAMAÇÃO I
+Aluno: João Vitor Barbosa da Silva
+
+
 3.20 Calculadora de juros. Os juros simples sobre um
 empréstimo são calculados a partir da fórmula
 juros = principal * taxa * dias / 365;
@@ -51,7 +55,7 @@ int main() {
     scanf("%f", &days);
 
   }
-  
+
   return 0;
 }
 

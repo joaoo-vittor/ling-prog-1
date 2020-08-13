@@ -1,5 +1,9 @@
 /*
 
+Disciplina : 2020.1 LABORATÓRIO DE PROGRAMAÇÃO I
+Aluno: João Vitor Barbosa da Silva
+
+
 3.29 O que o programa a seguir exibe?
 
 #include <stdio.h>

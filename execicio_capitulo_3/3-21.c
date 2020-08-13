@@ -1,5 +1,9 @@
 /*
 
+Disciplina : 2020.1 LABORATÓRIO DE PROGRAMAÇÃO I
+Aluno: João Vitor Barbosa da Silva
+
+
 3.21 Calculadora de salário. Desenvolva um programa
 que determine o salário semanal bruto de vários fun-
 cionários. A empresa paga ‘uma hora normal’ para cada
@@ -32,7 +36,7 @@ int main() {
   scanf("%f", &hourly_payment);
 
   while (work_hours != -1) {
-    
+
     if (work_hours <= 40) {
       salary = work_hours * hourly_payment;
       printf("Salary is R$%.2f\n", salary);

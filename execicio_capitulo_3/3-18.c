@@ -1,5 +1,9 @@
 /*
 
+Disciplina : 2020.1 LABORATÓRIO DE PROGRAMAÇÃO I
+Aluno: João Vitor Barbosa da Silva
+
+
 3.18 Calculadora de limite de crédito. Desenvolva um
 programa em C que determine se um cliente de uma
 loja de departamentos excedeu seu limite de crédito. Os
@@ -81,7 +85,7 @@ int main() {
     scanf("%f", &credit_limit);
 
   }
-  
+
   return 0;
 }
 

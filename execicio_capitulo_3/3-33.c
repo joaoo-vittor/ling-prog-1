@@ -1,5 +1,9 @@
 /*
 
+Disciplina : 2020.1 LABORATÓRIO DE PROGRAMAÇÃO I
+Aluno: João Vitor Barbosa da Silva
+
+
 3.33 Quadrado de asteriscos. Escreva um programa que
 leia o lado de um quadrado e depois exiba esse quadra-
 do a partir de asteriscos. Seu programa deverá funcionar

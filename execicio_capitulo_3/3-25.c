@@ -1,5 +1,9 @@
 /*
 
+Disciplina : 2020.1 LABORATÓRIO DE PROGRAMAÇÃO I
+Aluno: João Vitor Barbosa da Silva
+
+
 para imprimir a tabela de valores a seguir. Use a sequência
 de escape de tabulação, \t , na instrução printf para se-
 parar as colunas com tabulações.

@@ -1,4 +1,9 @@
-/* 
+/*
+
+Disciplina : 2020.1 LABORATÓRIO DE PROGRAMAÇÃO I
+Aluno: João Vitor Barbosa da Silva
+
+
 3.17 Consumo de gasolina. Os motoristas se preocupam
 com o consumo de combustível de seus automóveis.
 Um motorista manteve um registro do número de abas-
@@ -12,16 +17,17 @@ Depois de processar toda a informação, o programa de-
 verá calcular e exibir o total combinado de quilômetros
 por litro para todos os abastecimentos. Veja um exemplo
 do diálogo de entrada/saída:
+
 */
 
 #include <stdio.h>
 
 int main() {
-  float kilometers_driven, liters_to_fuel; 
+  float kilometers_driven, liters_to_fuel;
   float current_consumption, total_consumption;
   float counter_total_consumption = 0;
   int counter = 0;
-  
+
 
   printf("inform how many liters you filled (-1 to exit): ");
   scanf("%f", &liters_to_fuel);
@@ -39,7 +45,7 @@ int main() {
     current_consumption = kilometers_driven / liters_to_fuel;
     counter += 1;
     counter_total_consumption += current_consumption;
-    
+
     printf("The current consumption is %f km/l\n", current_consumption);
 
     printf("inform how many liters you filled (-1 to exit): ");
@@ -57,7 +63,7 @@ int main() {
   total_consumption = counter_total_consumption / counter;
 
   printf("overall consumption was %f km/l", total_consumption);
-  
+
   return 0;
 }
 

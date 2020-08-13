@@ -1,5 +1,9 @@
 /*
 
+Disciplina : 2020.1 LABORATÓRIO DE PROGRAMAÇÃO I
+Aluno: João Vitor Barbosa da Silva
+
+
 3.24 Ache o número maior. O processo de achar o número
 maior (ou seja, o máximo de um grupo de números)
 é usado com frequência nas aplicações de computador.

@@ -1,0 +1,19 @@
+/*
+
+Disciplina : 2020.1 LABORATÓRIO DE PROGRAMAÇÃO I
+Aluno: João Vitor Barbosa da Silva
+
+3.43 O que há de errado com a instrução a seguir? Reescreva-
+-a para obter o resultado que o programador provavel-
+mente tentava obter.
+  printf( “%d”, ++( x + y ) );
+
+
+Resposta:
+
+  printf( “%d”, ( x + y ));
+
+  o que estava errado era os dois ++ na frente,
+  da soma de (x + y)
+
+*/

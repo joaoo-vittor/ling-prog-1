@@ -1,5 +1,9 @@
 /*
 
+Disciplina : 2020.1 LABORATÓRIO DE PROGRAMAÇÃO I
+Aluno: João Vitor Barbosa da Silva
+
+
 3.27 Ache os dois maiores números. Usando uma técnica
 semelhante à do Exercício 3.24, ache os dois maiores
 valores dos 10 números. [Nota: você poderá informar

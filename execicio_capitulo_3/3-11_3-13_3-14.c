@@ -1,10 +1,14 @@
 /*
 
+Disciplina : 2020.1 LABORATÓRIO DE PROGRAMAÇÃO I
+Aluno: João Vitor Barbosa da Silva
+
+
 3.11 Identifique e corrija os erros dos seguintes trechos e có-
 digos: [Nota: pode haver mais de um erro em cada um.]
 
 
-a) 
+a)
 
   if ( idade >= 65 );
     printf( “Idade é maior ou igual a
@@ -13,7 +17,7 @@ a)
     printf( “Idade é menor que 65\n” );
 
 
-b) 
+b)
   int x = 1, total;
 
   while ( x <= 10 )
@@ -22,15 +26,15 @@ b)
   }
 
 
-c) 
+c)
   while ( x <= 100 )
     total += x;
     ++x;
 
 
-d) 
-  
-  
+d)
+
+
 
 ===> RESPOSTA:
 
@@ -49,7 +53,7 @@ int main() {
   } else {
     printf("Idade é menor que 65\n");
   }
-  
+
   return 0;
 }
 
@@ -64,10 +68,10 @@ int main() {
     total += x;
     ++x;
   }
-  
+
   return 0;
-} 
-  
+}
+
 c)
 
 #include <stdio.h>
@@ -79,7 +83,7 @@ int main() {
     total += x;
     ++x;
   }
-    
+
   return 0;
 }
 
@@ -93,7 +97,7 @@ int main() {
     printf("%d\n", y);
     ++y;
   }
-  
+
   return 0;
 }
 
@@ -115,12 +119,12 @@ while ( x <= 10 ) {
   total += y;
   ++x;
 
-} // fim do while 
+} // fim do while
 
   printf(“Total is %d\n”, total);
   return 0;
 
-} // fim do main 
+} // fim do main
 
 ===> RESPOSTA:
   O programa acima imprime a acumulação da multiplação de x * x
@@ -141,7 +145,7 @@ b) Atribua a soma das variáveis x , y e z à variável p .
 c) A seguinte condição deve ser testada em uma estru-
 tura de seleção if...else : o valor atual da variável
 m é maior que o dobro do valor atual da variável v .
-  if m > (v*2) 
+  if m > (v*2)
 
 d) Obtenha valores para as variáveis s , r e t pelo te-
 clado.

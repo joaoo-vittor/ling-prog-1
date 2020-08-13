@@ -1,5 +1,9 @@
 /*
 
+Disciplina : 2020.1 LABORATÓRIO DE PROGRAMAÇÃO I
+Aluno: João Vitor Barbosa da Silva
+
+
 Saída tabular. Escreva um programa que use o loo-
 ping para produzir a seguinte tabela de valores:
 
