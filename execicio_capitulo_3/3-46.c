@@ -46,7 +46,7 @@ int main() {
     }
   }
 
-  printf("accumulator  %d", accumulator);
+  printf("The factorial of %d is %d", aux, accumulator);
 
   return 0;
 }
