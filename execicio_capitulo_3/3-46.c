@@ -44,8 +44,6 @@ int main() {
     } else {
       accumulator = accumulator * (fact - 1);
     }
-
-    printf("%d\n", fact);
   }
 
   printf("accumulator  %d", accumulator);
