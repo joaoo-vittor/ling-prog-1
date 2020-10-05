@@ -1,1 +1,1 @@
-# Exercicios de Linguagem de Programação.
+# Estudo da Linguagem de Programação C.
