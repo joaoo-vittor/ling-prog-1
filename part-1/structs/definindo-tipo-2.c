@@ -16,6 +16,7 @@ int main() {
   int i, j;
 
   for (i = 0; i < 3; i++) {
+    
     fflush(stdin);
     printf("Informe o nome: ");
     fgets(agenda.contatos[i].nome, 100, stdin);
