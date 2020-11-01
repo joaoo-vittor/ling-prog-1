@@ -6,6 +6,7 @@
 
 //  gcc main1.c -o main -lm
 // prototipação
+
 void menu();
 
 void menuInt();
