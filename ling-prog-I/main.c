@@ -22,7 +22,8 @@ typedef struct {
 
 // Prototipação
 
-void infoProduto(Produto produto);
+void infoProdutoCarrinho(Produto produto);
+void infoProduto();
 void menu();
 void cadastrarProduto();
 void listarProdutos();
@@ -32,20 +33,25 @@ Produto pegarProdutoPorCodigo(int codigo);
 int * temNocarrinho(int codigo);
 void fecharPedido();
 void limpabuffer();
-Produto guardaEmArquivo();
-Produto buscaEmArquivo();
+int buscaEmArquivo(int codigo);
 int tamanhoArquivo(char nome[]);
+int pegaUltimoID(char nome[]);
+int verificaID (int codigo);
+void inicializaArquivo();
 
 
 // Variaveis globais
 
 static int contadorProduto = 0;
 static int contadorCarrinho = 0;
+static int indexProduto = 0;
 static Carrinho carrinho[50];
 static Produto produtos[50];
 
 int main() {
   setlocale(LC_ALL, "Portuguese");
+
+  inicializaArquivo();
 
   menu();
 
@@ -53,13 +59,53 @@ int main() {
 }
 
 
-void infoProduto(Produto produto) {
+void infoProdutoCarrinho(Produto produto) {
   printf(" Código: %d \n Nome: %s \n Preço: %.2f\n", produto.codigo, strtok(produto.nome, "\n"), produto.preco);
+}
+
+void infoProduto() {
+  
+  FILE * idProduto;
+  FILE * nomeProduto;
+  FILE * precoProduto;
+  
+  int i;
+  int auxId;
+  char auxNome[30];
+  float auxPreco;
+  int tamArqId;
+
+  idProduto = fopen("idProduto.dat", "rb");
+  nomeProduto = fopen("nomeProduto.dat", "rb");
+  precoProduto = fopen("precoProduto.dat", "rb");
+
+  tamArqId = tamanhoArquivo("idProduto.dat");
+
+  if (idProduto && nomeProduto && precoProduto) {
+    for (i = 0; i < tamArqId; i++) {
+
+      fgets(auxNome, 30, nomeProduto);
+      fscanf(idProduto, "%d", &auxId);
+      fscanf(precoProduto, "%f", &auxPreco);
+
+      printf(" Código: %d \n Nome: %s \n Preço: %.2f\n ", auxId, strtok(auxNome, "\n"), auxPreco);
+      printf("--------------------- \n");
+
+      sleep(1);
+    }
+    printf(" ");
+  }
+
+  fclose(idProduto);
+  fclose(nomeProduto);
+  fclose(precoProduto);
 }
 
 
 void menu() {
   int opcao;
+
+  contadorProduto = pegaUltimoID("idProduto.dat");
 
   printf(" ================================\n");
   printf(" ========= Bem-vindo(a) =========\n");
@@ -111,20 +157,52 @@ void menu() {
 
 
 void cadastrarProduto() {
+  
+  FILE * idProduto;
+  FILE * nomeProduto;
+  FILE * precoProduto;
+  
+  int i;
+  char nome[30];
+  float preco;
+  int ultimoID = 0;
+  int aux;
+
   printf(" Cadastra Produto\n");
   printf(" =================\n");
 
   printf(" Informe o nome do produto: \n ");
-  fgets(produtos[contadorProduto].nome, 30, stdin);
+  fgets(nome, 30, stdin);
 
   printf(" Informe o preço do produto: \n ");
-  scanf("%f", &produtos[contadorProduto].preco);
+  scanf("%f", &preco);
 
-  printf(" O produto %s foi cadastrado com sucesso.\n", strtok(produtos[contadorProduto].nome, "\n"));
+  printf(" O produto %s foi cadastrado com sucesso.\n", strtok(nome, "\n"));
 
-  produtos[contadorProduto].codigo = (contadorProduto + 1);
+  aux = tamanhoArquivo("idProduto.dat");
+
+  if (aux > 0) {
+    ultimoID = pegaUltimoID("idProduto.dat");
+  }
+
+  idProduto = fopen("idProduto.dat", "ab");
+  nomeProduto = fopen("nomeProduto.dat", "ab");
+  precoProduto = fopen("precoProduto.dat", "ab");
+
+
+  if (idProduto && nomeProduto && precoProduto) {
+    fprintf(idProduto, "%d\n", ultimoID + 1);
+    fprintf(nomeProduto, "%s\n", nome);
+    fprintf(precoProduto, "%.2f\n", preco);
+  } else {
+    printf(" Não foi possivel criar o arquivo,\n entre em contato com o desenvolvedor.\n ");
+  }
+
+  fclose(idProduto);
+  fclose(nomeProduto);
+  fclose(precoProduto);
+
   contadorProduto++;
-  guardaEmArquivo();
 
   limpabuffer();
   sleep(2);
@@ -134,18 +212,14 @@ void cadastrarProduto() {
 
 void listarProdutos() {
   int i;
+  int temProduto;
 
-  buscaEmArquivo();
+  temProduto = tamanhoArquivo("idProduto.dat");
   
-  if (contadorProduto > 0) {
+  if (temProduto > 0) {
     printf(" Listagem de produtos: \n");
     printf(" ---------------------\n");
-    for (i = 0; i < contadorProduto; i++) {
-      infoProduto(produtos[i]);
-      printf(" ---------------------\n");
-      sleep(1);
-      // Sleep(1); // Utilize esta função caso esteja no windows;
-    }
+    infoProduto();
     sleep(2);
     menu();
   } else {
@@ -165,19 +239,17 @@ void comprarProduto() {
     printf(" Informe o código do produto que deseja adicionar no carrinho: \n");
 
     printf(" ========= Produtos Disponíveis =========\n");
-    for (i = 0; i < contadorProduto; i++) {
-      infoProduto(produtos[i]);
-      printf(" ---------------------\n ");
-      sleep(1);
-      // Sleep(2); // Utilize esta função caso esteja no windows;
-    }
+    infoProduto();
+    sleep(1);
     
     scanf("%d", &codigo);
     getchar();
 
     for (i = 0; i < contadorProduto; i++) {
-      if (produtos[i].codigo == codigo) {
+      if (verificaID(codigo)) {
+        
         temMercado = 1;
+        
         if (contadorCarrinho > 0) {
           itemCarrinho = temNocarrinho(codigo);
 
@@ -185,10 +257,13 @@ void comprarProduto() {
             carrinho[itemCarrinho[1]].quantidade++;
             printf(" Aumentei a quantidade em 1 unidade do produto %s, já existente no carrinho.\n", 
             strtok(carrinho[itemCarrinho[1]].produto.nome, "\n"));
+            itemCarrinho[0] = 0;
+            itemCarrinho[1] = 0;
             sleep(2);
             // Sleep(2); // Utilize esta função caso esteja no windows;
             menu();
           } else {
+            buscaEmArquivo(codigo);
             prod = pegarProdutoPorCodigo(codigo);
             carrinho[contadorCarrinho].produto = prod;
             carrinho[contadorCarrinho].quantidade = 1;
@@ -199,6 +274,7 @@ void comprarProduto() {
             menu();
           }
         } else {
+          buscaEmArquivo(codigo);
           prod = pegarProdutoPorCodigo(codigo);
           carrinho[contadorCarrinho].produto = prod;
           carrinho[contadorCarrinho].quantidade = 1;
@@ -234,7 +310,7 @@ void visualizarCarrinho() {
     printf(" Produtos no carrinho: \n");
     printf(" ---------------------\n");
     for (i = 0; i < contadorCarrinho; i++) {
-      infoProduto(carrinho[i].produto);
+      infoProdutoCarrinho(carrinho[i].produto);
       printf(" Quantidade: %d\n", carrinho[i].quantidade);
       printf(" ---------------------\n");
       sleep(1);
@@ -291,7 +367,7 @@ void fecharPedido() {
       prod = carrinho[i].produto;
       quantidade = carrinho[i].quantidade;
       valorTotal += prod.preco * quantidade;
-      infoProduto(prod);
+      infoProdutoCarrinho(prod);
       printf(" Quantidade: %d\n", quantidade);
       printf(" ---------------------\n");
       sleep(1);
@@ -320,45 +396,22 @@ void limpabuffer() {
 }
 
 
-Produto guardaEmArquivo() {
-  int i;
-  FILE * idProduto;
-  FILE * nomeProduto;
-  FILE * precoProduto;
-
-  idProduto = fopen("idProduto.dat", "ab");
-  nomeProduto = fopen("nomeProduto.dat", "ab");
-  precoProduto = fopen("precoProduto.dat", "ab");
-
-  if (idProduto && nomeProduto && precoProduto) {
-    for (i = contadorProduto - 1; i < contadorProduto; i++) {
-      fprintf(idProduto, "%d\n", produtos[i].codigo);
-      fprintf(nomeProduto, "%s\n", produtos[i].nome);
-      fprintf(precoProduto, "%.2f\n", produtos[i].preco);
-    }
-  } else {
-    printf(" Não foi possivel criar o arquivo,\n entre em contato com o desenvolvedor.\n ");
-  }
-
-  fclose(idProduto);
-  fclose(nomeProduto);
-  fclose(precoProduto);
-
-}
-
-
-Produto buscaEmArquivo() {
+int buscaEmArquivo(int codigo) {
   int i;
   FILE * idProduto;
   FILE * nomeProduto;
   FILE * precoProduto;
   int tamArqId, tamArqNome, tamArqPreco;
-  int aux;
-  char auxnome[30];
+  int codigoDaBase;
+  float precoDaBase;
+  char nomeDaBase[30];
+  int posicaoDeslocamento;
+
 
   idProduto = fopen("idProduto.dat", "rb");
   nomeProduto = fopen("nomeProduto.dat", "rb");
   precoProduto = fopen("precoProduto.dat", "rb");
+
 
   if (idProduto && nomeProduto && precoProduto) {
   
@@ -366,22 +419,27 @@ Produto buscaEmArquivo() {
     tamArqNome = tamanhoArquivo("nomeProduto.dat");
     tamArqPreco = tamanhoArquivo("precoProduto.dat");
     
-    printf(" %d\n", tamArqId);
-    printf(" %d\n", tamArqNome);
-    printf(" %d\n", tamArqPreco);
-
     if (tamArqId == tamArqNome && tamArqNome == tamArqPreco) {
-      printf(" Entrei\n");
       for (i = 0; i < tamArqId; i++) {
-        // fread(aux, sizeof(int), tamArqId, idProduto);
-        // printf("%d", aux);
-        fgets(auxnome, 30, nomeProduto);
-        printf(" %s", auxnome);
-        // fscanf(idProduto, "%d", produtos[i].codigo);
-        // fscanf(precoProduto, "%f", produtos[i].preco);
+        fscanf(idProduto, "%d", &codigoDaBase);
+        
+        if (codigo == codigoDaBase) {
+          posicaoDeslocamento = i;
+        }
       }
-    }
 
+      for (i = 0; i <= posicaoDeslocamento; i++) {
+        if (i == posicaoDeslocamento) {
+          fgets(produtos[indexProduto].nome, 30, nomeProduto);
+          fscanf(precoProduto, "%f", &produtos[indexProduto].preco);
+          produtos[indexProduto].codigo = codigo;
+          break;
+        }
+        fgets(nomeDaBase, 30, nomeProduto);
+        fscanf(precoProduto, "%f", &precoDaBase);
+      }
+
+    }
 
   } else {
     printf(" Não foi possivel encontrar o arquivo,\n entre em contato com o desenvolvedor.\n ");
@@ -399,7 +457,7 @@ int tamanhoArquivo(char nome[]) {
   int tamanho = 0;
   char c;
 
-  arquivo = fopen(nome, "r");
+  arquivo = fopen(nome, "rb");
 
   if (arquivo) {
     while ((c = getc(arquivo)) != EOF) {
@@ -411,6 +469,73 @@ int tamanhoArquivo(char nome[]) {
     printf("Arquivo não encontrado!\n");
   }
 
+  fclose(arquivo);
+
   return tamanho;
 }
 
+
+int pegaUltimoID(char nome[]) {
+  FILE * arquivo;
+  int ultimoId;
+  int tamDeslocamento;
+  int i;
+  int lixo;
+
+  tamDeslocamento = tamanhoArquivo(nome);
+
+  arquivo = fopen(nome, "rb");
+
+  if (arquivo) {
+    for (i = 0; i < tamDeslocamento; i++) {
+      if (i == tamDeslocamento-1) {
+        fscanf(arquivo, "%d", &ultimoId);
+        break;
+      }
+      fscanf(arquivo, "%d", &lixo);
+    }
+  } else {
+    printf("Arquivo não encontrado!\n");
+  }
+
+  fclose(arquivo);
+
+  return ultimoId;
+}
+
+
+int verificaID (int codigo) {
+  FILE * idProduto;
+  int tamArqId;
+  int i;
+  int idBase;
+
+  idProduto = fopen("idProduto.dat", "rb");
+
+  tamArqId = tamanhoArquivo("idProduto.dat");
+  
+  for (i = 0; i < tamArqId; i++) {
+    fscanf(idProduto, "%d", &idBase);
+    
+    if (codigo == idBase) {
+      return 1;
+    }
+  }
+
+  return 0;
+}
+
+
+void inicializaArquivo() {
+  FILE * idProduto;
+  FILE * nomeProduto;
+  FILE * precoProduto;
+
+  idProduto = fopen("idProduto.dat", "ab");
+  nomeProduto = fopen("nomeProduto.dat", "ab");
+  precoProduto = fopen("precoProduto.dat", "ab");
+
+  fclose(idProduto);
+  fclose(nomeProduto);
+  fclose(precoProduto);
+}
