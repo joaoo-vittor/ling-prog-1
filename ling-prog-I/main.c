@@ -15,6 +15,7 @@ typedef struct {
   int estoque;
 } Produto;
 
+
 typedef struct {
   Produto produto;
   int quantidade;
@@ -81,12 +82,12 @@ void infoProduto() {
   int tamArqId;
   int estoq;
 
-  idProduto = fopen("idProduto.dat", "rb");
-  nomeProduto = fopen("nomeProduto.dat", "rb");
-  precoProduto = fopen("precoProduto.dat", "rb");
-  estoque = fopen("estoque.dat", "rb");
+  idProduto = fopen("idProduto.txt", "r");
+  nomeProduto = fopen("nomeProduto.txt", "r");
+  precoProduto = fopen("precoProduto.txt", "r");
+  estoque = fopen("estoque.txt", "r");
 
-  tamArqId = tamanhoArquivo("idProduto.dat");
+  tamArqId = tamanhoArquivo("idProduto.txt");
 
   if (idProduto && nomeProduto && precoProduto) {
     for (i = 0; i < tamArqId; i++) {
@@ -114,7 +115,7 @@ void infoProduto() {
 void menu() {
   int opcao;
 
-  contadorProduto = pegaUltimoID("idProduto.dat");
+  contadorProduto = pegaUltimoID("idProduto.txt");
 
   printf(" ================================\n");
   printf(" ========= Bem-vindo(a) =========\n");
@@ -194,16 +195,16 @@ void cadastrarProduto() {
 
   printf(" O produto %s foi cadastrado com sucesso.\n", strtok(nome, "\n"));
 
-  aux = tamanhoArquivo("idProduto.dat");
+  aux = tamanhoArquivo("idProduto.txt");
 
   if (aux > 0) {
-    ultimoID = pegaUltimoID("idProduto.dat");
+    ultimoID = pegaUltimoID("idProduto.txt");
   }
 
-  idProduto = fopen("idProduto.dat", "ab");
-  nomeProduto = fopen("nomeProduto.dat", "ab");
-  precoProduto = fopen("precoProduto.dat", "ab");
-  estoque = fopen("estoque.dat", "ab");
+  idProduto = fopen("idProduto.txt", "a");
+  nomeProduto = fopen("nomeProduto.txt", "a");
+  precoProduto = fopen("precoProduto.txt", "a");
+  estoque = fopen("estoque.txt", "a");
 
 
   if (idProduto && nomeProduto && precoProduto) {
@@ -232,7 +233,7 @@ void listarProdutos() {
   int i;
   int temProduto;
 
-  temProduto = tamanhoArquivo("idProduto.dat");
+  temProduto = tamanhoArquivo("idProduto.txt");
   
   if (temProduto > 0) {
     printf(" Listagem de produtos: \n");
@@ -255,7 +256,7 @@ void comprarProduto() {
   int * verificaId;
   int temProdArq;
 
-  temProdArq = tamanhoArquivo("idProduto.dat");
+  temProdArq = tamanhoArquivo("idProduto.txt");
   
   if (contadorProduto > 0 && temProdArq > 0) {
     printf(" Informe o código do produto que deseja adicionar no carrinho: \n");
@@ -444,18 +445,18 @@ int buscaEmArquivo(int codigo) {
   int posicaoDeslocamento;
 
 
-  idProduto = fopen("idProduto.dat", "rb");
-  nomeProduto = fopen("nomeProduto.dat", "rb");
-  precoProduto = fopen("precoProduto.dat", "rb");
-  estoque = fopen("estoque.dat", "rb");
+  idProduto = fopen("idProduto.txt", "r");
+  nomeProduto = fopen("nomeProduto.txt", "r");
+  precoProduto = fopen("precoProduto.txt", "r");
+  estoque = fopen("estoque.txt", "r");
 
 
   if (idProduto && nomeProduto && precoProduto && estoque) {
   
-    tamArqId = tamanhoArquivo("idProduto.dat");
-    tamArqNome = tamanhoArquivo("nomeProduto.dat");
-    tamArqPreco = tamanhoArquivo("precoProduto.dat");
-    tamArqEstoque = tamanhoArquivo("estoque.dat");
+    tamArqId = tamanhoArquivo("idProduto.txt");
+    tamArqNome = tamanhoArquivo("nomeProduto.txt");
+    tamArqPreco = tamanhoArquivo("precoProduto.txt");
+    tamArqEstoque = tamanhoArquivo("estoque.txt");
 
     
     if (tamArqId == tamArqNome && tamArqNome == tamArqPreco && tamArqEstoque == tamArqPreco) {
@@ -504,8 +505,8 @@ int reduzEstoque(int codigo) {
   arrayEstoque = pegaEstoque();
   
   posicaoProd = verificaID(codigo);
-  estoque = fopen("estoque.dat", "ab");
-  tamEstoque = tamanhoArquivo("estoque.dat");
+  estoque = fopen("estoque.txt", "a");
+  tamEstoque = tamanhoArquivo("estoque.txt");
 
   if (estoque) {
     limpa();
@@ -524,7 +525,7 @@ int reduzEstoque(int codigo) {
 
 void limpa() {
   FILE * estoque;
-  estoque = fopen("estoque.dat", "wb");
+  estoque = fopen("estoque.txt", "w");
   fclose(estoque);
 }
 
@@ -537,8 +538,8 @@ int * pegaEstoque() {
   int tamEstoque;
   int i;
 
-  estoque = fopen("estoque.dat", "rb");
-  tamEstoque = tamanhoArquivo("estoque.dat");
+  estoque = fopen("estoque.txt", "r");
+  tamEstoque = tamanhoArquivo("estoque.txt");
 
   if (estoque) {
     for (i = 0; i < tamEstoque; i++) {
@@ -559,7 +560,7 @@ int tamanhoArquivo(char nome[]) {
   int tamanho = 0;
   char c;
 
-  arquivo = fopen(nome, "rb");
+  arquivo = fopen(nome, "r");
 
   if (arquivo) {
     while ((c = getc(arquivo)) != EOF) {
@@ -586,7 +587,7 @@ int pegaUltimoID(char nome[]) {
 
   tamDeslocamento = tamanhoArquivo(nome);
 
-  arquivo = fopen(nome, "rb");
+  arquivo = fopen(nome, "r");
 
   if (arquivo) {
     for (i = 0; i < tamDeslocamento; i++) {
@@ -613,9 +614,9 @@ int * verificaID (int codigo) {
   int i;
   int idBase;
 
-  idProduto = fopen("idProduto.dat", "rb");
+  idProduto = fopen("idProduto.txt", "r");
 
-  tamArqId = tamanhoArquivo("idProduto.dat");
+  tamArqId = tamanhoArquivo("idProduto.txt");
   
   for (i = 0; i < tamArqId; i++) {
     fscanf(idProduto, "%d", &idBase);
@@ -636,10 +637,10 @@ void inicializaArquivo() {
   FILE * precoProduto;
   FILE * estoque;
 
-  estoque = fopen("estoque.dat", "ab");
-  idProduto = fopen("idProduto.dat", "ab");
-  nomeProduto = fopen("nomeProduto.dat", "ab");
-  precoProduto = fopen("precoProduto.dat", "ab");
+  estoque = fopen("estoque.txt", "a");
+  idProduto = fopen("idProduto.txt", "a");
+  nomeProduto = fopen("nomeProduto.txt", "a");
+  precoProduto = fopen("precoProduto.txt", "a");
 
   fclose(estoque);
   fclose(idProduto);
