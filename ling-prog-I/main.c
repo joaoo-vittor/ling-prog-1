@@ -42,7 +42,10 @@ int * verificaID(int codigo);
 void inicializaArquivo();
 int reduzEstoque(int codigo);
 int * pegaEstoque();
-void limpa();
+void limpa(char nome[]);
+int * excluirProduto(int codigo);
+int atualizaId(int * ids, int tamArq);
+void excluir();
 
 
 // Variaveis globais
@@ -91,14 +94,15 @@ void infoProduto() {
 
   if (idProduto && nomeProduto && precoProduto) {
     for (i = 0; i < tamArqId; i++) {
-
-      fgets(auxNome, 30, nomeProduto);
       fscanf(idProduto, "%d", &auxId);
+      fgets(auxNome, 30, nomeProduto);
       fscanf(precoProduto, "%f", &auxPreco);
       fscanf(estoque, "%d", &estoq);
 
-      printf(" Código: %d \n Nome: %s \n Preço: %.2f \n Estoque: %d \n ", auxId, strtok(auxNome, "\n"), auxPreco, estoq);
-      printf("--------------------- \n");
+      if (auxId != 0) {
+        printf(" Código: %d \n Nome: %s \n Preço: %.2f \n Estoque: %d \n ", auxId, strtok(auxNome, "\n"), auxPreco, estoq);
+        printf("--------------------- \n");
+      }
 
       sleep(1);
     }
@@ -127,8 +131,9 @@ void menu() {
   printf(" 2 - Listar produtos\n");
   printf(" 3 - Comprar produto\n");
   printf(" 4 - Vizualizar carrinho\n");
-  printf(" 5 - Finalizar compra\n");
-  printf(" 6 - Sair\n ");
+  printf(" 5 - Fechar Pedido\n");
+  printf(" 6 - Excluir Produto\n");
+  printf(" 7 - Sair\n ");
 
   scanf("%d", &opcao);
   getchar();
@@ -150,6 +155,9 @@ void menu() {
       fecharPedido();
       break;
     case 6:
+      excluir();
+      break;
+    case 7:
       printf("\tVolte sempre!!!\n");
       sleep(2);
       // Sleep(2); // Utilize esta função caso esteja no windows;
@@ -163,6 +171,22 @@ void menu() {
       break;
   }
 
+}
+
+
+void excluir() {
+  int codigo;
+
+  printf(" Excluir Produto\n");
+  printf(" =================\n");
+  infoProduto();
+
+  printf("Informe o id do produto: \n ");
+  scanf("%d", &codigo);
+
+  excluirProduto(codigo);
+
+  menu();
 }
 
 
@@ -269,6 +293,12 @@ void comprarProduto() {
     getchar();
 
     verificaId = verificaID(codigo);
+
+    if (verificaId == 0) {
+      printf(" O produto não existe.\n");
+      menu();
+    }
+
     for (i = 0; i < contadorProduto; i++) {
       if (verificaId[0] == 1) {
         
@@ -509,7 +539,7 @@ int reduzEstoque(int codigo) {
   tamEstoque = tamanhoArquivo("estoque.txt");
 
   if (estoque) {
-    limpa();
+    limpa("estoque.txt");
     for (i = 0; i < tamEstoque; i++) {
       if (posicaoProd[1] == i) {
         fprintf(estoque, "%d\n", arrayEstoque[posicaoProd[1]]-1);
@@ -523,9 +553,9 @@ int reduzEstoque(int codigo) {
   fclose(estoque);
 }
 
-void limpa() {
+void limpa(char nome[]) {
   FILE * estoque;
-  estoque = fopen("estoque.txt", "w");
+  estoque = fopen(nome, "w");
   fclose(estoque);
 }
 
@@ -617,6 +647,10 @@ int * verificaID (int codigo) {
   idProduto = fopen("idProduto.txt", "r");
 
   tamArqId = tamanhoArquivo("idProduto.txt");
+
+  if (codigo == 0) {
+    return 0;
+  }
   
   for (i = 0; i < tamArqId; i++) {
     fscanf(idProduto, "%d", &idBase);
@@ -628,6 +662,49 @@ int * verificaID (int codigo) {
   }
 
   return retorno;
+}
+
+
+int * excluirProduto(int codigo) {
+  FILE * idProd;
+  FILE * idProduto;
+
+  int static id[50] = {};
+  int i, j;
+  int auxId;
+  int tamArqId;
+
+  idProduto = fopen("idProduto.txt", "r");
+  tamArqId = tamanhoArquivo("idProduto.txt");
+
+  if (idProduto) {
+    for (i = 0; i < tamArqId; i++) {
+      fscanf(idProduto, "%d", &auxId);
+      if (auxId == codigo) {
+        id[i] = 0;
+      } else {
+        id[i] = auxId;
+      }
+    }
+    fclose(idProduto);
+  } else {
+    printf("Arquivo não encontrado!\n");
+  }
+
+  limpa("idProduto.txt");
+
+
+  idProd = fopen("idProduto.txt", "w");
+
+  if (idProd) {
+    for (j = 0; j < tamArqId; j++) {
+      fprintf(idProd, "%d\n", id[j]);
+    }
+  } else {
+    printf("Arquivo não encontrado!\n");
+  }
+
+  fclose(idProd);
 }
 
 
