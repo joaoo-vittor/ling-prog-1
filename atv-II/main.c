@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <unistd.h> // Linux ou Mac
-// #include <windows.h>
+// #include <unistd.h> // Linux ou Mac
+#include <windows.h>
 
 
 // Structs
@@ -24,7 +24,7 @@ typedef struct {
 // Prototipação
 
 void infoProdutoCarrinho(Produto produto);
-void infoProduto();
+void infoProduto(int flag);
 void menu();
 void cadastrarProduto();
 void listarProdutos();
@@ -45,6 +45,8 @@ void limpa(char nome[]);
 int * excluirProduto(int codigo);
 int atualizaId(int * ids, int tamArq);
 void excluir();
+void atualizar();
+int atualizaEstoque(int codigo, int novaQtd);
 
 
 // Variaveis globais
@@ -54,6 +56,7 @@ static int contadorCarrinho = 0;
 static int indexProduto = 0;
 static Carrinho carrinho[50];
 static Produto produtos[50];
+
 
 int main() {
 
@@ -69,7 +72,8 @@ void infoProdutoCarrinho(Produto produto) {
   printf(" C%cdigo: %d \n Nome: %s \n Pre%co: %.2f \n Estoque: %d \n", 162, produto.codigo, strtok(produto.nome, "\n"), 135, produto.preco, produto.estoque);
 }
 
-void infoProduto() {
+
+void infoProduto(int flag) {
   
   FILE * idProduto;
   FILE * nomeProduto;
@@ -97,7 +101,12 @@ void infoProduto() {
       fscanf(precoProduto, "%f", &auxPreco);
       fscanf(estoque, "%d", &estoq);
 
-      if (auxId != 0) {
+      if (estoq != 0 && flag == 0) {
+        printf(" C%cdigo: %d \n Nome: %s \n Pre%co: %.2f \n Estoque: %d \n ", 162, auxId, strtok(auxNome, "\n"), 135, auxPreco, estoq);
+        printf("--------------------- \n");
+      } 
+
+      if (flag == 1) {
         printf(" C%cdigo: %d \n Nome: %s \n Pre%co: %.2f \n Estoque: %d \n ", 162, auxId, strtok(auxNome, "\n"), 135, auxPreco, estoq);
         printf("--------------------- \n");
       }
@@ -131,7 +140,8 @@ void menu() {
   printf(" 4 - Vizualizar carrinho\n");
   printf(" 5 - Fechar Pedido\n");
   printf(" 6 - Excluir Produto\n");
-  printf(" 7 - Sair\n ");
+  printf(" 7 - Atualizar Produto\n");
+  printf(" 8 - Sair\n ");
 
   scanf("%d", &opcao);
   getchar();
@@ -156,6 +166,9 @@ void menu() {
       excluir();
       break;
     case 7:
+      atualizar();
+      break;  
+    case 8:
       printf("\tVolte sempre!!!\n");
       Sleep(2000);
       exit(0);
@@ -175,12 +188,31 @@ void excluir() {
 
   printf(" Excluir Produto\n");
   printf(" =================\n");
-  infoProduto();
+  infoProduto(0);
 
-  printf("Informe o id do produto: \n ");
+  printf("Informe o codigo do produto: \n ");
   scanf("%d", &codigo);
 
   excluirProduto(codigo);
+
+  menu();
+}
+
+void atualizar() {
+  int codigo;
+  int novaQtd;
+
+  printf(" Atualizar Produto\n");
+  printf(" =================\n");
+  infoProduto(1);
+
+  printf("Informe o codigo do produto: \n ");
+  scanf("%d", &codigo);
+
+  printf(" Informe a nova quantidade: \n ");
+  scanf("%d", &novaQtd);
+
+  atualizaEstoque(codigo, novaQtd);
 
   menu();
 }
@@ -192,14 +224,13 @@ void cadastrarProduto() {
   FILE * nomeProduto;
   FILE * precoProduto;
   FILE * estoque;
-
   
   int i;
   char nome[30];
   float preco;
   int ultimoID = 0;
   int aux;
-  int estoq;
+  int estoq = 0;
 
   printf(" Cadastra Produto\n");
   printf(" =================\n");
@@ -209,6 +240,7 @@ void cadastrarProduto() {
 
   printf(" Informe o pre%co do produto: \n ", 135);
   scanf("%f", &preco);
+  limpabuffer();
 
   printf(" Informe a quantidade em estoque do produto %s: \n ", strtok(nome, "\n"));
   scanf("%d", &estoq);
@@ -258,8 +290,8 @@ void listarProdutos() {
   if (temProduto > 0) {
     printf(" Listagem de produtos: \n");
     printf(" ---------------------\n");
-    infoProduto();
-    Sleep(2);
+    infoProduto(0);
+    Sleep(2000);
     menu();
   } else {
     printf(" N%co temos produtos cadastrados.\n", 198);
@@ -279,12 +311,12 @@ void comprarProduto() {
   temProdArq = tamanhoArquivo("idProduto.txt");
   
   if (contadorProduto > 0 && temProdArq > 0) {
-    printf(" Informe o c%cdigo do produto que deseja adicionar no carrinho: \n", 162);
 
     printf(" ========= Produtos Dispon%cveis =========\n", 161);
-    infoProduto();
+    infoProduto(0);
     Sleep(1000);
     
+    printf(" Informe o codigo do produto que deseja adicionar no carrinho: \n");
     scanf("%d", &codigo);
     getchar();
 
@@ -307,7 +339,7 @@ void comprarProduto() {
             carrinho[itemCarrinho[1]].produto.estoque -= 1;
             carrinho[itemCarrinho[1]].quantidade++;
             reduzEstoque(codigo);
-            printf(" Aumentei a quantidade em 1 unidade do produto %s, j%c existente no carrinho.\n", 
+            printf(" Aumentei a quantidade em 1 unidade do produto %s, j%c existente no carrinho.\n",  
             strtok(carrinho[itemCarrinho[1]].produto.nome, "\n"), 160);
             itemCarrinho[0] = 0;
             itemCarrinho[1] = 0;
@@ -322,8 +354,7 @@ void comprarProduto() {
             carrinho[contadorCarrinho].produto.estoque -= 1;
             contadorCarrinho++;
             printf(" O produto %s, foi adicionado ao carrinho.\n", strtok(prod.nome, "\n"));
-            Sleep(2);
-            // Sleep(2); // Utilize esta função caso esteja no windows;
+            Sleep(2000);
             menu();
           }
         } else {
@@ -345,7 +376,7 @@ void comprarProduto() {
     verificaId[1] = 0;
 
     if (temMercado < 1) {
-      printf(" N%co foi encontrado o produto com c%cdigo %d\n", 198, 162, codigo);
+      printf(" N%co foi encontrado o produto com codigo %d\n", 198, codigo);
       Sleep(2000);
       menu();
     }
@@ -369,7 +400,6 @@ void visualizarCarrinho() {
       printf(" Quantidade: %d\n", carrinho[i].quantidade);
       printf(" ---------------------\n");
       Sleep(1000);
-      // Sleep(1); // Utilize esta função caso esteja no windows;
     }
     Sleep(2000);
     menu();
@@ -436,7 +466,7 @@ void fecharPedido() {
     menu();
 
   } else {
-    printf(" Você n%co tem nenhum produto no carrinho ainda.\n", 198);
+    printf(" Voc%c n%co tem nenhum produto no carrinho ainda.\n", 136, 198);
     Sleep(3000);
     menu();
   }
@@ -635,7 +665,6 @@ int * verificaID (int codigo) {
   int idBase;
 
   idProduto = fopen("idProduto.txt", "r");
-
   tamArqId = tamanhoArquivo("idProduto.txt");
 
   if (codigo == 0) {
@@ -656,45 +685,94 @@ int * verificaID (int codigo) {
 
 
 int * excluirProduto(int codigo) {
-  FILE * idProd;
-  FILE * idProduto;
+  FILE * auxEstoque;
+  FILE * estoque;
 
-  int static id[50] = {};
+  int static arrayEstoque[50] = {};
   int i, j;
-  int auxId;
-  int tamArqId;
+  int auxEs;
+  int tamArqEs;
+  int * posicaoEx;
+  
+  estoque = fopen("estoque.txt", "r");
+  posicaoEx = verificaID(codigo);
+  tamArqEs = tamanhoArquivo("estoque.txt");
 
-  idProduto = fopen("idProduto.txt", "r");
-  tamArqId = tamanhoArquivo("idProduto.txt");
-
-  if (idProduto) {
-    for (i = 0; i < tamArqId; i++) {
-      fscanf(idProduto, "%d", &auxId);
-      if (auxId == codigo) {
-        id[i] = 0;
+  if (estoque) {
+    for (i = 0; i < tamArqEs; i++) {
+      fscanf(estoque, "%d", &auxEs);
+      if (posicaoEx[1] == i) {
+        arrayEstoque[i] = 0;
       } else {
-        id[i] = auxId;
+        arrayEstoque[i] = auxEs;
       }
     }
-    fclose(idProduto);
+    fclose(estoque);
   } else {
     printf("Arquivo n%co encontrado!\n", 198);
   }
 
-  limpa("idProduto.txt");
+  limpa("estoque.txt");
 
+  auxEstoque = fopen("estoque.txt", "w");
 
-  idProd = fopen("idProduto.txt", "w");
-
-  if (idProd) {
-    for (j = 0; j < tamArqId; j++) {
-      fprintf(idProd, "%d\n", id[j]);
+  if (auxEstoque) {
+    for (j = 0; j < tamArqEs; j++) {
+      fprintf(auxEstoque, "%d\n", arrayEstoque[j]);
     }
   } else {
     printf("Arquivo n%co encontrado!\n", 198);
   }
 
-  fclose(idProd);
+  fclose(auxEstoque);
+
+  return arrayEstoque;
+}
+
+
+int atualizaEstoque(int codigo, int novaQtd) {
+  FILE * estoque;
+  FILE * auxEstoque;
+
+  int static arrayEstoque[50] = {};
+  int auxEst;
+  int * posicaoEx;
+  int tamArqEs; 
+  int i, j;
+
+
+  estoque = fopen("estoque.txt", "r");
+
+  posicaoEx = verificaID(codigo);
+  tamArqEs = tamanhoArquivo("estoque.txt");
+
+  if (estoque) {
+    for (i = 0; i < tamArqEs; i++) {
+      fscanf(estoque, "%d", &auxEst);
+      if (posicaoEx[1] == i) {
+        arrayEstoque[i] = novaQtd;
+      } else {
+        arrayEstoque[i] = auxEst;
+      }
+    }
+    fclose(estoque);
+  } else {
+    printf("Arquivo n%co encontrado!\n", 198);
+  }
+
+  limpa("estoque.txt");
+
+  auxEstoque = fopen("estoque.txt", "w");
+
+  if (auxEstoque) {
+    for (j = 0; j < tamArqEs; j++) {
+      fprintf(auxEstoque, "%d\n", arrayEstoque[j]);
+    }
+    fclose(auxEstoque);
+  } else {
+    printf("Arquivo n%co encontrado!\n", 198);
+  }
+
 }
 
 
@@ -714,3 +792,4 @@ void inicializaArquivo() {
   fclose(nomeProduto);
   fclose(precoProduto);
 }
+
