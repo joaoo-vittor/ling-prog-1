@@ -51,8 +51,7 @@ int main() {
   do {
     op = menu();
     opcao(op, auxFila, origFila);
-    op = 0;
-  } while (opcao);
+  } while (1);
 
   return 0;
 }
@@ -384,7 +383,7 @@ int vazia(Fila * fila) {
 
 
 int menu() {
-  int opcao = 0;
+  int opcao;
 
   printf(" ========= Menu Principal =========\n");
   printf(" 1 - Cadastra Cliente\n");
@@ -398,14 +397,7 @@ int menu() {
   printf(" opção: ");
   scanf("%d", &opcao);
 
-  if (isdigit(opcao)) {
-    return opcao;
-  } else {
-    printf(" Valor inserido é invalido!\n");
-    system("clear");
-    menu();
-  }
-
+  return opcao;
 }
 
 
