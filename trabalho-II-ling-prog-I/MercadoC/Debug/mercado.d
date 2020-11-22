@@ -1,0 +1,1 @@
+mercado.o: ../mercado.c

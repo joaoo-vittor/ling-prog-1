@@ -1,0 +1,49 @@
+/*
+
+Disciplina : 2020.1 LABORATÓRIO DE PROGRAMAÇÃO I
+Aluno: João Vitor Barbosa da Silva
+
+
+3.29 O que o programa a seguir exibe?
+
+#include <stdio.h>
+int main( void )
+{
+  int contador = 1; // inicializa contador
+
+  while ( contador <= 10 ) { // loop 10 vezes
+
+    // exibe linha de texto
+
+    printf( “%s\n”, contador % 2 ? “****” : “++++++++” );
+    contador++; // incrementa contador
+
+  } // fim do while
+
+  return 0; // indica que o programa terminou com sucesso
+} // fim da função main
+
+*/
+
+/*
+
+O PROGRAMA ACIMA EXIBE:
+
+  ****
+  ++++++++
+  ****
+  ++++++++
+  ****
+  ++++++++
+  ****
+  ++++++++
+  ****
+  ++++++++
+
+  quando o modulo do contador for igual a 1, é exibido ****
+  quando o modulo do contador for igual a 0, é exibido +++++++++
+
+  essa tecnica é usada tambem para determinar se um numero é
+  impar ou par.
+
+*/

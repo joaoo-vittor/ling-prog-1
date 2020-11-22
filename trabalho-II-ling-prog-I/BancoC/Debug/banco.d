@@ -1,0 +1,1 @@
+banco.o: ../banco.c

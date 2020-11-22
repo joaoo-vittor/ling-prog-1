@@ -1,0 +1,67 @@
+/*
+
+Disciplina : 2020.1 LABORATÓRIO DE PROGRAMAÇÃO I
+Aluno: João Vitor Barbosa da Silva
+
+
+3.32 Outro problema do else pendurado. Modifique o
+    seguinte código para produzir a saída mostrada. Use as
+    técnicas de recuo apropriadas. Você pode não precisar fa-
+    zer mudança alguma, além de inserir as chaves. O com-
+    pilador ignora os recuos em um programa. Eliminamos
+    o recuo do código a seguir para tornar o problema mais
+    desafiador. [Nota: é possível que nenhuma modificação
+    seja necessária.]
+
+    if ( y == 8 ) {
+      if ( x == 5 )
+        printf( “@@@@@\n”);
+    } else {
+      printf( “#####\n”);
+    }
+    printf( “$$$$$\n”);
+    printf( “&&&&&\n”);
+
+    a)  Supondo que x produzida. x = 5 e y = 8 ,
+        a seguinte saída será
+
+    @@@@@
+    $$$$$
+    &&&&&
+
+    b)  Supondo que x produzida. x = 5 e y = 8 ,
+        a seguinte saída será
+
+    @@@@@
+
+    c)  Supondo que x produzida. x = 5 e y = 8 ,
+        a seguinte saída será
+
+    @@@@@
+    &&&&&
+
+    d)  Supondo que x = 5 e y = 7 , a seguinte saída será
+        produzida. [Nota: as três últimas instruções printf
+        fazem parte de uma instrução composta.]
+
+    #####
+    $$$$$
+    &&&&&
+
+*/
+
+
+/*
+
+RESPOSTA DA QUESTÃO ACIMA:
+
+if ( y == 8 ) {
+  if ( x == 5 )
+    printf( “@@@@@\n”);
+} else {
+  printf( “#####\n”);
+}
+printf( “$$$$$\n”);
+printf( “&&&&&\n”);
+
+*/
