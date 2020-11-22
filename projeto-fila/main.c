@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+<<<<<<< HEAD
 #include <ctype.h>
 
 
@@ -11,6 +12,14 @@ typedef struct dadoNo {
   char nome[20];
   int tamArq;
   int tempoFila;
+=======
+
+typedef struct dadoNo {
+  int codigo;
+  char nome[20];
+  int tamArq;
+  // int tempoFila;
+>>>>>>> ebdff3bb3cf51d8b9b594e0d6d30f1fe8271530e
 } DadoNo;
 
 
@@ -28,6 +37,7 @@ typedef struct fila {
 
 Fila * criaFila();
 int menu();
+<<<<<<< HEAD
 void opcao(int opcao, Fila * filaAux, Fila * origFila);
 void cadastraCliente(Fila * fila);
 void atenderCliente(Fila * fila);
@@ -38,19 +48,36 @@ int vazia(Fila * fila);
 void inserirClienteEmFila(Fila * origFila, Fila * auxFila);
 void alterarCodigo(Fila * origFila, Fila * auxFila, int tipoCodigo);
 int * verificaCodigo(Fila * fila, int codigo);
+=======
+void opcao(int opcao, Fila * fila);
+void cadastraCliente(Fila * fila);
+void atenderCliente(Fila * fila);
+void inserir(Fila * fila, DadoNo dado);
+void exiberFila(Fila * fila);
+void removeNo(Fila * fila);
+int vazia(Fila * fila);
+>>>>>>> ebdff3bb3cf51d8b9b594e0d6d30f1fe8271530e
 void limpabuffer();
 
 
 int main() {
 
+<<<<<<< HEAD
   Fila * origFila = criaFila();
   Fila * auxFila = criaFila();
+=======
+  Fila * fila = criaFila();
+>>>>>>> ebdff3bb3cf51d8b9b594e0d6d30f1fe8271530e
 
   int op;
 
   do {
     op = menu();
+<<<<<<< HEAD
     opcao(op, auxFila, origFila);
+=======
+    opcao(op, fila);
+>>>>>>> ebdff3bb3cf51d8b9b594e0d6d30f1fe8271530e
     op = 0;
   } while (opcao);
 
@@ -90,6 +117,7 @@ void inserir(Fila * fila, DadoNo dado) {
     no->prox = NULL;
     no->dado = dado;
     temp->prox = no;
+<<<<<<< HEAD
     fila->tamFila++;
   }
 }
@@ -125,6 +153,15 @@ void exiberFila(Fila * fila, int tipoVizualizacao) {
     } else {
       printf("\n Base de Dados Vazia\n");
     }
+=======
+  }
+}
+
+
+void exiberFila(Fila * fila) {
+  if (vazia(fila)) {
+    printf("\n Lista vazia\n");
+>>>>>>> ebdff3bb3cf51d8b9b594e0d6d30f1fe8271530e
     sleep(3);
     system("clear");
     return;
@@ -134,6 +171,7 @@ void exiberFila(Fila * fila, int tipoVizualizacao) {
 
   system("clear");
 
+<<<<<<< HEAD
   if (tipoVizualizacao == 1) {
     printf(" Fila de atendimento: \n\n");
   } else {
@@ -151,6 +189,12 @@ void exiberFila(Fila * fila, int tipoVizualizacao) {
       , apontador->dado.tamArq);
       printf("\n");
     }
+=======
+  printf(" Fila de atendimento: \n\n");
+
+  while (apontador != NULL) {
+    printf(" | Codigo: %d, Nome: %s, Tamanho do arquivo: %d | <- ", apontador->dado.codigo, strtok(apontador->dado.nome, "\n"), apontador->dado.tamArq);
+>>>>>>> ebdff3bb3cf51d8b9b594e0d6d30f1fe8271530e
     apontador = apontador->prox;
   }
 
@@ -161,6 +205,7 @@ void exiberFila(Fila * fila, int tipoVizualizacao) {
 void removeNo(Fila * fila) {
   if (!vazia(fila)) {
     No * auxPonteiro = fila->cabeca;
+<<<<<<< HEAD
     printf("\n O cliente %s foi atendido!\n\n", strtok(auxPonteiro->dado.nome, "\n"));
     fila->cabeca = auxPonteiro->prox;
     free(auxPonteiro);
@@ -371,6 +416,11 @@ void alterarCodigo(Fila * origFila, Fila * auxFila, int tipoCodigo) {
       }
     }
 
+=======
+    fila->cabeca = auxPonteiro->prox;
+    free(auxPonteiro);
+    fila->tamFila--;
+>>>>>>> ebdff3bb3cf51d8b9b594e0d6d30f1fe8271530e
   }
 }
 
@@ -386,6 +436,7 @@ int vazia(Fila * fila) {
 int menu() {
   int opcao = 0;
 
+<<<<<<< HEAD
   printf(" ========= Menu Principal =========\n");
   printf(" 1 - Cadastra Cliente\n");
   printf(" 2 - Listar Cliente Em Atendimento\n");
@@ -435,6 +486,32 @@ void opcao(int opcao, Fila * filaAux, Fila * origFila) {
       alterarCodigo(origFila, filaAux, 2);
       break;
     case 8:
+=======
+  printf(" ========= CriptEx =========\n");
+  printf(" 1 - Cadastra Cliente\n");
+  printf(" 2 - Listar Cliente\n");
+  printf(" 3 - Atender Cliente\n");
+  printf(" 4 - sair\n");
+  printf(" opção: ");
+  scanf("%d", &opcao);
+
+  return opcao;
+}
+
+
+void opcao(int opcao, Fila * fila) {
+  switch (opcao) {
+    case 1:
+      cadastraCliente(fila);
+      break;
+    case 2:
+      exiberFila(fila);
+      break;
+    case 3:
+      removeNo(fila);
+      break;
+    case 4:
+>>>>>>> ebdff3bb3cf51d8b9b594e0d6d30f1fe8271530e
       exit(1);
     default:
       printf(" Opção invalida!\n");
@@ -442,11 +519,16 @@ void opcao(int opcao, Fila * filaAux, Fila * origFila) {
   }
 }
 
+<<<<<<< HEAD
 
 void cadastraCliente(Fila * fila) {
   DadoNo dado;
   int codigoPrio, codigoCli;
   int * auxVerif;
+=======
+void cadastraCliente(Fila * fila) {
+  DadoNo dado;
+>>>>>>> ebdff3bb3cf51d8b9b594e0d6d30f1fe8271530e
 
   system("clear");
   limpabuffer();
@@ -454,6 +536,7 @@ void cadastraCliente(Fila * fila) {
   printf(" insira o nome do cliente: ");
   fgets(dado.nome, 20, stdin);
 
+<<<<<<< HEAD
   if (vazia(fila)) {
     printf(" insira o codigo do cliente: ");
     scanf("%d", &dado.codigo);
@@ -480,13 +563,25 @@ void cadastraCliente(Fila * fila) {
     }
   } while (codigoPrio < 0 || codigoPrio > 4);
   dado.codigoDePrioridade = codigoPrio;
+=======
+  printf(" insira o codigo do cliente: ");
+  scanf("%d", &dado.codigo);
+>>>>>>> ebdff3bb3cf51d8b9b594e0d6d30f1fe8271530e
 
   printf(" insira o tamanho do arquivo: ");
   scanf("%d", &dado.tamArq);
 
+<<<<<<< HEAD
   dado.tempoFila = 0;
+=======
+>>>>>>> ebdff3bb3cf51d8b9b594e0d6d30f1fe8271530e
   inserir(fila, dado);
   limpabuffer();
   system("clear");
 }
 
+<<<<<<< HEAD
+=======
+
+// void atenderCliente();
+>>>>>>> ebdff3bb3cf51d8b9b594e0d6d30f1fe8271530e

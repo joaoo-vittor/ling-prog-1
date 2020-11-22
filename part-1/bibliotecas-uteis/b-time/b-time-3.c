@@ -15,7 +15,11 @@ int main() {
 
   info = localtime(&tempoBruto);
 
+<<<<<<< HEAD
   printf("%s\n", asctime(info));
+=======
+  printf("Data e Hora local %s\n", asctime(info));
+>>>>>>> ebdff3bb3cf51d8b9b594e0d6d30f1fe8271530e
 
   return 0;
 }

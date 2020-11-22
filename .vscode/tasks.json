@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
     "tasks": [
         {
             "type": "cppbuild",
@@ -24,4 +25,30 @@
         }
     ],
     "version": "2.0.0"
+=======
+  "tasks": [
+    {
+      "type": "shell",
+      "label": "C/C++: gcc-9 build active file",
+      "command": "/usr/bin/gcc-9",
+      "args": [
+        "-g",
+        "${file}",
+        "-o",
+        "${fileDirname}/${fileBasenameNoExtension}"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ],
+  "version": "2.0.0"
+>>>>>>> ebdff3bb3cf51d8b9b594e0d6d30f1fe8271530e
 }
