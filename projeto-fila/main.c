@@ -38,6 +38,7 @@ int vazia(Fila * fila);
 void inserirClienteEmFila(Fila * origFila, Fila * auxFila);
 void alterarCodigo(Fila * origFila, Fila * auxFila, int tipoCodigo);
 int * verificaCodigo(Fila * fila, int codigo);
+void ordernar(Fila * fila, int tipo);
 void limpabuffer();
 
 
@@ -51,6 +52,9 @@ int main() {
   do {
     op = menu();
     opcao(op, auxFila, origFila);
+    if (origFila->tamFila > 1) {
+      ordernar(origFila, 1);
+    }
   } while (1);
 
   return 0;
@@ -229,7 +233,57 @@ void inserirClienteEmFila(Fila * origFila, Fila * auxFila) {
     auxPont->prox = auxPonteiroOrigFila;
     origFila->tamFila++;
   }
+  
   printf("\n O cliente %s foi inserido na fila\n\n", strtok(auxPonteiroOrigFila->dado.nome, "\n"));
+
+}
+
+
+void ordernar(Fila * fila, int tipo) {
+   if (vazia(fila)) {
+    return;
+  }
+
+
+  No * i;
+  No * j;
+
+  for (i = fila->cabeca; i->prox != NULL; i = i->prox) {
+    No * maior = i;
+    for (j = i->prox; j != NULL; j = j->prox) {
+      if (tipo == 1) {
+        if (j->dado.codigoDePrioridade >= maior->dado.codigoDePrioridade) {
+          maior = j;
+        }
+      } else {
+        if (j->dado.tempoFila >= maior->dado.tempoFila) {
+          maior = j;
+        }
+      }
+    }
+
+    int auxCodigo = i->dado.codigo;
+    int auxTempo = i->dado.tempoFila;
+    int auxCodigoPrioridade = i->dado.codigoDePrioridade;
+    int auxTamArq = i->dado.tamArq;
+
+    char auxNomeA[20];
+    char auxNomeB[20];
+    stpcpy(auxNomeA, i->dado.nome);
+    stpcpy(auxNomeB, maior->dado.nome);
+
+    i->dado.codigo = maior->dado.codigo;
+    i->dado.tempoFila = maior->dado.tempoFila;
+    i->dado.codigoDePrioridade = maior->dado.codigoDePrioridade;
+    i->dado.tamArq = maior->dado.tamArq;
+    stpcpy(i->dado.nome, auxNomeB);
+
+    maior->dado.codigo = auxCodigo;
+    maior->dado.tempoFila = auxTempo;
+    maior->dado.codigoDePrioridade = auxCodigoPrioridade;
+    maior->dado.tamArq = auxTamArq;
+    stpcpy(maior->dado.nome, auxNomeA);
+  }
 }
 
 
