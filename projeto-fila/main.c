@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <ctype.h>
 
 
 typedef struct dadoNo {
@@ -38,7 +37,9 @@ int vazia(Fila * fila);
 void inserirClienteEmFila(Fila * origFila, Fila * auxFila);
 void alterarCodigo(Fila * origFila, Fila * auxFila, int tipoCodigo);
 int * verificaCodigo(Fila * fila, int codigo);
+// https://www.youtube.com/watch?v=Rl3500be6Ns
 void ordernar(Fila * fila, int tipo);
+int * verificaTempoEmFila(Fila * fila);
 void limpabuffer();
 
 
@@ -53,7 +54,7 @@ int main() {
     op = menu();
     opcao(op, auxFila, origFila);
     if (origFila->tamFila > 1) {
-      ordernar(origFila, 1);
+      ordernar(origFila, 1); // 1 por codigo de prioridade
     }
   } while (1);
 
@@ -145,9 +146,11 @@ void exiberFila(Fila * fila, int tipoVizualizacao) {
 
   while (apontador != NULL) {
     if (tipoVizualizacao == 1) {
-      printf(" | Nome: %s, Codigo: %d, Codigo de prioridade: %d, Tamanho do arquivo: %d, Tempo em fila: %d | <- ",
+      printf(" | Nome: %s, Codigo: %d, Codigo de prioridade: %d, Tamanho do arquivo: %d, Tempo em fila: %d | \n",
       strtok(apontador->dado.nome, "\n"), apontador->dado.codigo, apontador->dado.codigoDePrioridade
       , apontador->dado.tamArq, apontador->dado.tempoFila);
+      printf("\t\t\t\t\t^\n");
+      printf("\t\t\t\t\t|\n");
     } else {
       printf(" Nome: %s\n Codigo: %d\n Codigo de prioridade: %d\n Tamanho do arquivo: %d\n",
       strtok(apontador->dado.nome, "\n"), apontador->dado.codigo, apontador->dado.codigoDePrioridade
@@ -174,11 +177,24 @@ void removeNo(Fila * fila) {
   }
 
   No * apotadorAux = fila->cabeca;
+  int * aux = verificaTempoEmFila(fila);
 
   while (apotadorAux != NULL) {
     apotadorAux->dado.tempoFila++;
-    apotadorAux = apotadorAux->prox;
+    apotadorAux = (*apotadorAux).prox;
+    // apotadorAux = apotadorAux->prox;
   }
+
+  int i;
+
+  if (aux[0]) {
+    for (i = 0; i < fila->tamFila - aux[1]; i++) {
+      ordernar(fila, 2);
+      removeNo(fila);
+    }
+  }
+  aux[0] = 0;
+  aux[1] = 0;
 }
 
 
@@ -239,11 +255,36 @@ void inserirClienteEmFila(Fila * origFila, Fila * auxFila) {
 }
 
 
+int * verificaTempoEmFila(Fila * fila) {
+  if (vazia(fila)) {
+    return 0;
+  }
+
+  No * aux = fila->cabeca;
+  int i;
+  int qtd = 0;
+  int static retorno[] = {0, 0};
+
+  for (i = 0; i < fila->tamFila; i++) {
+    if (aux->dado.tempoFila >= 6) {
+      qtd++;
+    }
+    aux = aux->prox;
+  }
+
+  if (qtd > 0) {
+    retorno[0] = 1; // se tem pessoas com tempo maior que 6
+    retorno[1] = qtd;
+  }
+
+  return retorno;
+}
+
+
 void ordernar(Fila * fila, int tipo) {
    if (vazia(fila)) {
     return;
   }
-
 
   No * i;
   No * j;
