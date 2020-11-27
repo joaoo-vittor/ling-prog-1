@@ -45,6 +45,8 @@ int vazia(Fila * fila);
 void inserirClienteEmFila(Fila * origFila, Fila * auxFila);
 void alterarCodigoClienteArq();
 void alterarCodigoClientePrioridadeArq();
+void limpaArquivo(char nome[]);
+int * verifCodigos(int * array, int codigo, int tam);
 void alterarCodigo(Fila * origFila, Fila * auxFila, int tipoCodigo);
 int * verificaCodigo(Fila * fila, int codigo);
 // https://www.youtube.com/watch?v=Rl3500be6Ns
@@ -54,7 +56,7 @@ void guardaEmArquivo(DadoNo dado);
 void pegaDadosEmArquivo(Fila * fila);
 void inicializaArquivo();
 int verificaCodigoEmArquivo(int codigoVerif);
-int tamanhoArquivo(char nome[]);
+int tamanhoArquivo(char nome[], int tipoArq);
 void exibirClienteDB();
 void limpabuffer();
 
@@ -63,9 +65,11 @@ int main() {
 
   Fila * origFila = criaFila();
   Fila * auxFila = criaFila();
+  
   inicializaArquivo();
 
   int op;
+  
 
   do {
     op = menu();
@@ -215,33 +219,44 @@ void inserirClienteEmFila(Fila * origFila, Fila * auxFila) {
   }
 
   int * estaEmFila;
+  int * emFila;
 
   exiberFila(auxFila, 2);
 
-  int codigo;
-  printf(" insira o codigo do cliente: ");
-  scanf("%d", &codigo);
+  int codigo, aux = 1;
 
 
-  estaEmFila = verificaCodigo(origFila, codigo);
 
-  if (estaEmFila[0]) {
-    printf("\n O cliente com o codigo %d já esta na fila\n\n", codigo);
-    return;
-  }
+  do {
+    printf(" insira o codigo do cliente: ");
+    scanf("%d", &codigo);
 
+    estaEmFila = verificaCodigo(origFila, codigo);
+    emFila = verificaCodigo(auxFila, codigo);
+    
+    if (!emFila[0]) {
+      printf(" Codigo não encontrado\n");
+      emFila[0] = 0;
+      estaEmFila[0] = 0;
+      aux = 1;
+    } else {
+      if (!estaEmFila[0]) {
+        printf("\n O cliente com o codigo %d já esta na fila\n\n", codigo);
+        estaEmFila[0] = 0;
+        aux = 1;
+      } else {
+        aux = 0;
+      }
+    }
+
+  } while (aux);
+  
   No * auxPonteiroAuxFila = auxFila->cabeca;
 
-
-  while (auxPonteiroAuxFila->dado.codigo != codigo && auxPonteiroAuxFila->prox != NULL) {
+  while (auxPonteiroAuxFila->dado.codigo != codigo) {
     auxPonteiroAuxFila = auxPonteiroAuxFila->prox;
   }
 
-  if (auxPonteiroAuxFila->dado.codigo != codigo) {
-    printf("\n Codigo não encontrado\n");
-    sleep(3);
-    inserirClienteEmFila(origFila, auxFila);
-  }
 
   printf(" insira tamanho do arquivo: ");
   scanf("%d", &auxPonteiroAuxFila->dado.tamArq);
@@ -505,6 +520,8 @@ int menu() {
   printf(" opção: ");
   scanf("%d", &opcao);
 
+  
+
   system("clear");
 
   return opcao;
@@ -519,11 +536,13 @@ void menuCadastro() {
   printf(" 2 - Listar Clientes da Base de Dados\n");
   printf(" 3 - Alterar Codigo do Cliente Em Arquivo\n");
   printf(" 4 - Alterar Codigo de Prioridade do Cliente Em Arquivo\n");
-  printf(" 5 - Sair\n");
+  printf(" 5 - Voltar ao Menu Anterior\n");
+  printf(" 6 - Sair\n");
   printf(" opção: ");
   scanf("%d", &opcao);
 
   system("clear");
+
 
   switch (opcao) {
     case 1:
@@ -534,11 +553,15 @@ void menuCadastro() {
       break;
     case 3:
       // Alterar Codigo do Cliente em arquivo
+      alterarCodigoClienteArq();
       break;
     case 4:
       // Alterar Codigo de Prioridade do Cliente em arquivo
+      alterarCodigoClientePrioridadeArq();
       break;
-    case 5: 
+    case 5:
+      break;
+    case 6: 
       exit(1);
     default:
       printf(" Opção invalida!\n");
@@ -550,17 +573,19 @@ void menuCadastro() {
 void menuAtendimento(Fila * filaAux, Fila * origFila) {
   int opcao;
 
+  pegaDadosEmArquivo(filaAux);
+
   printf(" ========= Menu Atendimento =========\n");
   printf(" 1 - Atender Cliente\n");
   printf(" 2 - Listar Fila de Atrendimento\n");
   printf(" 3 - Inserir Cliente em Fila de Atendimento\n");
-  printf(" 4 - sair\n");
+  printf(" 4 - Voltar ao Menu Anterior\n");
+  printf(" 5 - sair\n");
   printf(" opção: ");
   scanf("%d", &opcao);
 
   system("clear");
 
-  pegaDadosEmArquivo(filaAux);
 
   switch (opcao) {
     case 1:
@@ -573,6 +598,8 @@ void menuAtendimento(Fila * filaAux, Fila * origFila) {
       inserirClienteEmFila(origFila, filaAux);
       break;
     case 4:
+      break;
+    case 5:
       exit(1);
     default:
       printf(" Opção invalida!\n");
@@ -630,7 +657,6 @@ void cadastraCliente() {
   dado.codigoDePrioridade = codigoPrio;
 
   guardaEmArquivo(dado);
-  // inserir(fila, dado);
   limpabuffer();
   system("clear");
 }
@@ -659,17 +685,30 @@ void guardaEmArquivo(DadoNo dado) {
 }
 
 
-int tamanhoArquivo(char nome[]) {
+int tamanhoArquivo(char nome[], int tipoArq) {
   FILE * arquivo;
   int tamanho = 0;
-  char c;
+  char c[20];
+  char * result;
+  int * aux;
+  int valor;
 
   arquivo = fopen(nome, "r");
 
   if (arquivo) {
-    while ((c = getc(arquivo)) != EOF) {
-      if (c == '\n') {
-        tamanho++;
+    if (tipoArq == 1) {
+      while (!feof(arquivo)) {
+        result = fgets(c, 20, arquivo);
+        if (result) {
+          tamanho++;
+        }
+      }
+    } else {
+      while (!feof(arquivo)) {
+        result = fgets(c, sizeof(int) * 20, arquivo);
+        if (result) {
+          tamanho++;
+        }
       }
     }
   } else {
@@ -701,28 +740,26 @@ void pegaDadosEmArquivo(Fila * fila) {
   int * verifCod;
   
   if (codigoPrioridade && codigo && nome) {
-    tamNomeArq = tamanhoArquivo("nomeCliente.txt");
-    tamCodArq = tamanhoArquivo("codigoPrioridade.txt");
-    tamCodPriArq = tamanhoArquivo("nomeCliente.txt");
+    tamNomeArq = tamanhoArquivo("nomeCliente.txt", 1);
+    tamCodArq = tamanhoArquivo("codigoPrioridade.txt", 2);
+    tamCodPriArq = tamanhoArquivo("nomeCliente.txt", 2);
 
-    if (tamNomeArq == tamCodPriArq && tamCodPriArq == tamCodArq) {
-      for (i = 0; i < tamNomeArq; i++) {
-        fscanf(codigo, "%d", &codigoArq);
+    for (i = 0; i < tamNomeArq; i++) {
+      fscanf(codigo, "%d", &codigoArq);
 
-        verifCod = verificaCodigo(fila, codigoArq);
+      verifCod = verificaCodigo(fila, codigoArq);
 
+      if (verifCod[0] != 1) {
         fscanf(codigoPrioridade, "%d", &codigoPrioArq);
         fscanf(nome, "%s", nomeArq);
-
-        if (verifCod[0] != 1) {
-          dado.codigo = codigoArq;
-          dado.codigoDePrioridade = codigoPrioArq;
-          strcpy(dado.nome, nomeArq);
-          
-          inserir(fila, dado);
-        }
-        verifCod[0] = 0;
+        
+        dado.codigo = codigoArq;
+        dado.codigoDePrioridade = codigoPrioArq;
+        strcpy(dado.nome, nomeArq);
+        
+        inserir(fila, dado);
       }
+      verifCod[0] = 0;
     }
     
   } else {
@@ -775,21 +812,20 @@ void exibirClienteDB() {
   
 
   if (codigo && codigoPrioridade && nome) {
-    tamCodArq = tamanhoArquivo("codigoCliente.txt");
-    tamCodPriArq = tamanhoArquivo("codigoPrioridade.txt");
-    tamNomeArq = tamanhoArquivo("nomeCliente.txt");
-
-    if (tamCodArq == tamCodPriArq && tamCodPriArq == tamNomeArq) {
-      for (i = 0; i < tamCodArq; i++) {
-        fscanf(codigo, "%d", &codigoArq);
-        fscanf(codigoPrioridade, "%d", &codigoPrioArq);
-        fscanf(nome, "%s", nomeArq);
-        printf("\n");
-        printf(" Nome: %s \n", strtok(nomeArq, "\n"));
-        printf(" Codigo: %d \n", codigoArq);
-        printf(" Codigo Prioridade: %d \n", codigoPrioArq);
-        printf("\n");
-      }
+    tamCodArq = tamanhoArquivo("codigoCliente.txt", 2);
+    tamCodPriArq = tamanhoArquivo("codigoPrioridade.txt", 2);
+    tamNomeArq = tamanhoArquivo("nomeCliente.txt", 1);
+    
+    // printf("%d %d %d \n", tamNomeArq, tamCodPriArq, tamCodArq);
+    for (i = 0; i < tamNomeArq; i++) {
+      fscanf(codigo, "%d", &codigoArq);
+      fscanf(codigoPrioridade, "%d", &codigoPrioArq);
+      fscanf(nome, "%s", nomeArq);
+      printf("\n");
+      printf(" Nome: %s \n", strtok(nomeArq, "\n"));
+      printf(" Codigo: %d \n", codigoArq);
+      printf(" Codigo Prioridade: %d \n", codigoPrioArq);
+      printf("\n");
     }
   } else {
     printf("Arquivo não encontrado!\n");
@@ -803,12 +839,155 @@ void exibirClienteDB() {
 
 
 void alterarCodigoClienteArq() {
+  FILE * codigo;
 
+  int * arrayCodigo = (int*) malloc(sizeof(int));
+
+  int tamArq = tamanhoArquivo("codigoCliente.txt", 2);
+  int i;
+
+  if (tamArq > 0) {
+    exibirClienteDB();
+  } else {
+    printf(" Base de Dados vazia\n");
+    return;
+  }
+  
+  codigo = fopen("codigoCliente.txt", "r");
+
+  if (codigo) {
+    for (i = 0; i < tamArq; i++) {
+      fscanf(codigo, "%d", &arrayCodigo[i]);
+    }
+  } else {
+    printf("Arquivo não encontrado!\n");
+  }
+  fclose(codigo);
+
+  int codigoAntigo, codigoNovo;
+  int * verifCodigo;
+
+  do {
+    printf(" Digite o Codigo Antigo: ");
+    scanf("%d", &codigoAntigo);
+    verifCodigo = verifCodigos(arrayCodigo, codigoAntigo, tamArq);
+    if (verifCodigo[0] == 0) {
+      printf(" Codigo %d não exite.\n", codigoAntigo);
+      verifCodigo[0] = 0;
+      verifCodigo[1] = 0;
+    }
+  } while (!verifCodigo[0]);
+
+
+  do {
+    verifCodigo[0] = 0;
+    verifCodigo[1] = 0;
+    printf(" Digite o Novo Codigo: ");
+    scanf("%d", &codigoNovo);
+    verifCodigo = verifCodigos(arrayCodigo, codigoNovo, tamArq);
+    if (verifCodigo[0] == 1) {
+      printf(" Codigo %d já exite, tente outro.\n", codigoNovo);
+    }
+  } while (verifCodigo[0]);
+
+  verifCodigo = verifCodigos(arrayCodigo, codigoAntigo, tamArq);
+
+  arrayCodigo[verifCodigo[1]] = codigoNovo;
+  limpaArquivo("codigoCliente.txt");
+
+
+  codigo = fopen("codigoCliente.txt", "a");
+  for (i = 0; i < tamArq; i++) {
+    fprintf(codigo, "%d\n", arrayCodigo[i]);
+  }
+
+  fclose(codigo);
+  free(arrayCodigo);
 }
 
 
 void alterarCodigoClientePrioridadeArq() {
+  FILE * codigo;
+  FILE * codigoPrioridade;
 
+  int * arrayCodigo = (int*) malloc(sizeof(int));
+  int * arrayCodigoPrio = (int*) malloc(sizeof(int));
+
+  int tamCodArq = tamanhoArquivo("codigoCliente.txt", 2);
+  int tamCodPriArq = tamanhoArquivo("codigoPrioridade.txt", 2);
+  int i;
+
+
+  if (tamCodArq > 0) {
+    exibirClienteDB();
+  } else {
+    printf(" Base de Dados vazia\n");
+    return;
+  }
+  
+  codigo = fopen("codigoCliente.txt", "r");
+  codigoPrioridade = fopen("codigoPrioridade.txt", "r");
+
+  if (codigo && codigoPrioridade) {
+    for (i = 0; i < tamCodArq; i++) {
+      fscanf(codigo, "%d", &arrayCodigo[i]);
+      fscanf(codigoPrioridade, "%d", &arrayCodigoPrio[i]);
+    }
+  } else {
+    printf("Arquivo não encontrado!\n");
+  }
+  fclose(codigo);
+  fclose(codigoPrioridade);
+
+  int codigoCli, codigoNovo;
+  int * verifCodigo;
+
+  do {
+    printf(" Digite o Codigo Cliente: ");
+    scanf("%d", &codigoCli);
+    verifCodigo = verifCodigos(arrayCodigo, codigoCli, tamCodArq);
+    if (verifCodigo[0] == 0) {
+      printf(" Codigo %d não exite.\n", codigoCli);
+      verifCodigo[0] = 0;
+      verifCodigo[1] = 0;
+    }
+  } while (!verifCodigo[0]);
+
+
+  do {
+    printf(" Digite o Novo Codigo de Prioridade: ");
+    scanf("%d", &codigoNovo);
+    if (codigoNovo < 0 || codigoNovo > 4) {
+      printf(" Codigo de prioridade invalido, os codigos devem estar entra 1 e 4\n");
+    }
+  } while (codigoNovo < 0 || codigoNovo > 4);
+
+  arrayCodigoPrio[verifCodigo[1]] = codigoNovo;
+  limpaArquivo("codigoPrioridade.txt");
+
+
+  codigoPrioridade = fopen("codigoPrioridade.txt", "a");
+  for (i = 0; i < tamCodArq; i++) {
+    fprintf(codigoPrioridade, "%d\n", arrayCodigoPrio[i]);
+  }
+
+  fclose(codigoPrioridade);
+  free(arrayCodigo);
+  free(arrayCodigoPrio);
+}
+
+
+int * verifCodigos(int * array, int codigo, int tam) {
+  int static retorno[] = {0, 0};
+  int i;
+  for (i = 0; i < tam; i++) {
+    if (array[i] == codigo) {
+      retorno[0] = 1;
+      retorno[1] = i;
+      return retorno;
+    }
+  }
+  return retorno;
 }
 
 
@@ -824,4 +1003,12 @@ void inicializaArquivo() {
   fclose(codigo);
   fclose(codigoPrioridade);
   fclose(nome);
+}
+
+void limpaArquivo(char nome[]) {
+  FILE * arquivo;
+
+  arquivo = fopen(nome, "w");
+
+  fclose(arquivo);
 }
