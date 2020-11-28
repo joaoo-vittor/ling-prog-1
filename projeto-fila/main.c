@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <time.h>
 
 
 typedef struct dadoNo {
@@ -53,6 +54,7 @@ int * verificaCodigo(Fila * fila, int codigo);
 void ordernar(Fila * fila, int tipo);
 int * verificaTempoEmFila(Fila * fila);
 void guardaEmArquivo(DadoNo dado);
+void guardarLog(No * noDado, int tipo);
 void pegaDadosEmArquivo(Fila * fila);
 void inicializaArquivo();
 int verificaCodigoEmArquivo(int codigoVerif);
@@ -181,6 +183,9 @@ void exiberFila(Fila * fila, int tipoExibicao) {
 void removeNo(Fila * fila) {
   if (!vazia(fila)) {
     No * auxPonteiro = fila->cabeca;
+
+    guardarLog(auxPonteiro, 2);
+
     printf("\n O cliente %s foi atendido!\n\n", strtok(auxPonteiro->dado.nome, "\n"));
     fila->cabeca = auxPonteiro->prox;
     free(auxPonteiro);
@@ -191,23 +196,26 @@ void removeNo(Fila * fila) {
   }
 
   No * apotadorAux = fila->cabeca;
-  int * aux = verificaTempoEmFila(fila);
 
   while (apotadorAux != NULL) {
     apotadorAux->dado.tempoFila++;
-    apotadorAux = (*apotadorAux).prox;
-    // apotadorAux = apotadorAux->prox;
+    apotadorAux = apotadorAux->prox;
   }
 
-  int i;
+  int * tempFila;
 
-  if (aux[0]) {
-    for (i = 0; i < fila->tamFila - aux[1]; i++) {
+  tempFila = verificaTempoEmFila(fila);
+
+  if (fila->tamFila > 1) {
+    if (tempFila[1] == 1) {
       ordernar(fila, 2);
+    } else {
+      ordernar(fila, 1); // 1 por codigo de prioridade
     }
+    tempFila[0] = 0;
+    tempFila[1] = 0;
   }
-  aux[0] = 0;
-  aux[1] = 0;
+
 }
 
 
@@ -225,29 +233,42 @@ void inserirClienteEmFila(Fila * origFila, Fila * auxFila) {
 
   int codigo, aux = 1;
 
-
-
   do {
     printf(" insira o codigo do cliente: ");
     scanf("%d", &codigo);
 
-    estaEmFila = verificaCodigo(origFila, codigo);
-    emFila = verificaCodigo(auxFila, codigo);
     
-    if (!emFila[0]) {
-      printf(" Codigo não encontrado\n");
-      emFila[0] = 0;
+    estaEmFila = verificaCodigo(origFila, codigo);
+
+
+    if (estaEmFila[0]) {
+      printf("\n O cliente com o codigo %d já esta na fila\n\n", codigo);
       estaEmFila[0] = 0;
+      estaEmFila[1] = 0;
+      estaEmFila[2] = 0;
       aux = 1;
     } else {
-      if (!estaEmFila[0]) {
-        printf("\n O cliente com o codigo %d já esta na fila\n\n", codigo);
-        estaEmFila[0] = 0;
+
+      emFila = verificaCodigo(auxFila, codigo);
+      
+      if (emFila[0] != 1) {
+        printf(" Codigo não encontrado\n");
+        emFila[0] = 0;
+        emFila[1] = 0;
+        emFila[2] = 0;
         aux = 1;
       } else {
         aux = 0;
+        emFila[0] = 0;
+        emFila[1] = 0;
+        emFila[2] = 0;
       }
-    }
+
+      estaEmFila[0] = 0;
+      estaEmFila[1] = 0;
+      estaEmFila[2] = 0;
+
+    }    
 
   } while (aux);
   
@@ -256,7 +277,6 @@ void inserirClienteEmFila(Fila * origFila, Fila * auxFila) {
   while (auxPonteiroAuxFila->dado.codigo != codigo) {
     auxPonteiroAuxFila = auxPonteiroAuxFila->prox;
   }
-
 
   printf(" insira tamanho do arquivo: ");
   scanf("%d", &auxPonteiroAuxFila->dado.tamArq);
@@ -281,9 +301,22 @@ void inserirClienteEmFila(Fila * origFila, Fila * auxFila) {
   
   printf("\n O cliente %s foi inserido na fila\n\n", strtok(auxPonteiroOrigFila->dado.nome, "\n"));
 
+  int * tempFila;
+
+  tempFila = verificaTempoEmFila(origFila);
+
   if (origFila->tamFila > 1) {
-    ordernar(origFila, 1); // 1 por codigo de prioridade
+    if (tempFila[1] == 1) {
+      ordernar(origFila, 2);
+    } else {
+      ordernar(origFila, 1); // 1 por codigo de prioridade
+    }
   }
+
+  tempFila[0] = 0;
+  tempFila[1] = 0;
+
+  guardarLog(auxPonteiroOrigFila, 1);
 
 }
 
@@ -721,6 +754,41 @@ int tamanhoArquivo(char nome[], int tipoArq) {
 }
 
 
+void guardarLog(No * noDado, int tipo) {
+  FILE * log;
+  time_t segundos;
+  struct tm * dataHoraAtual;
+
+  time(&segundos);
+
+  dataHoraAtual = localtime(&segundos);
+
+  log = fopen("logCliente.txt", "a");
+
+  if (log) {
+    if (tipo == 1) {
+      fprintf(log, "Entrada:\nHora %d:%d:%d Data %d/%d/%d \n", 
+      dataHoraAtual->tm_hour, dataHoraAtual->tm_min, dataHoraAtual->tm_sec, 
+      dataHoraAtual->tm_mday, dataHoraAtual->tm_mon+1, dataHoraAtual->tm_year+1900);
+
+      fprintf(log, "Nome: %s\nCodigo: %d\nCodigo Prioridade: %d\nTamanho Arquivo:%d\n", 
+      noDado->dado.nome, noDado->dado.codigo, noDado->dado.codigoDePrioridade, noDado->dado.tamArq);
+    } else {
+      fprintf(log, "Saida: \nHora %d:%d:%d Data %d/%d/%d \n", 
+      dataHoraAtual->tm_hour, dataHoraAtual->tm_min, dataHoraAtual->tm_sec, 
+      dataHoraAtual->tm_mday, dataHoraAtual->tm_mon+1, dataHoraAtual->tm_year+1900);
+
+      fprintf(log, "Nome: %s\nCodigo: %d\nCodigo Prioridade: %d\nTamanho Arquivo:%d\n", 
+      noDado->dado.nome, noDado->dado.codigo, noDado->dado.codigoDePrioridade, noDado->dado.tamArq);
+    }
+  } else {
+    printf(" Não foi possivel criar o arquivo,\n entre em contato com o desenvolvedor.\n ");
+  }
+
+  fclose(log);
+}
+
+
 void pegaDadosEmArquivo(Fila * fila) {
   FILE * codigo;
   FILE * codigoPrioridade;
@@ -995,15 +1063,19 @@ void inicializaArquivo() {
   FILE * codigo;
   FILE * codigoPrioridade;
   FILE * nome;
+  FILE * log;
 
   codigo = fopen("codigoCliente.txt", "a");
   codigoPrioridade = fopen("codigoPrioridade.txt", "a");
   nome = fopen("nomeCliente.txt", "a");
+  log = fopen("logCliente.txt", "a");
 
+  fclose(log);
   fclose(codigo);
   fclose(codigoPrioridade);
   fclose(nome);
 }
+
 
 void limpaArquivo(char nome[]) {
   FILE * arquivo;
@@ -1012,3 +1084,4 @@ void limpaArquivo(char nome[]) {
 
   fclose(arquivo);
 }
+

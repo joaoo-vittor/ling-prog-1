@@ -1,0 +1,36 @@
+Entrada:
+Hora 23:24:22 Data 27/11/2020 
+Nome: joao
+Codigo: 123
+Codigo Prioridade: 4
+Tamanho Arquivo:11111
+Saida: 
+Hora 23:24:59 Data 27/11/2020 
+Nome: joao
+Codigo: 123
+Codigo Prioridade: 4
+Tamanho Arquivo:11111
+Entrada:
+Hora 23:25:35 Data 27/11/2020 
+Nome: joao
+Codigo: 123
+Codigo Prioridade: 4
+Tamanho Arquivo:3333333
+Entrada:
+Hora 23:25:50 Data 27/11/2020 
+Nome: jose
+Codigo: 153
+Codigo Prioridade: 1
+Tamanho Arquivo:55555
+Saida: 
+Hora 23:26:42 Data 27/11/2020 
+Nome: joao
+Codigo: 123
+Codigo Prioridade: 4
+Tamanho Arquivo:3333333
+Saida: 
+Hora 23:26:56 Data 27/11/2020 
+Nome: jose
+Codigo: 153
+Codigo Prioridade: 1
+Tamanho Arquivo:55555

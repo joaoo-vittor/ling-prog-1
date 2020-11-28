@@ -8,18 +8,18 @@
 // localtime(); // converte o valor tima para uma hora local
 
 int main() {
-  time_t tempoBruto;
-  struct tm *info;
+  
+  time_t segundos;
+  struct tm * dataHoraAtual;
 
-  time(&tempoBruto);
+  time(&segundos);
 
-  info = localtime(&tempoBruto);
+  dataHoraAtual = localtime(&segundos);
 
-<<<<<<< HEAD
-  printf("%s\n", asctime(info));
-=======
-  printf("Data e Hora local %s\n", asctime(info));
->>>>>>> ebdff3bb3cf51d8b9b594e0d6d30f1fe8271530e
+  // printf("%s\n", asctime(info));
+
+  printf(" %d:%d:%d \n", dataHoraAtual->tm_hour, dataHoraAtual->tm_min, dataHoraAtual->tm_sec);
+  printf(" %d/%d/%d \n", dataHoraAtual->tm_mday, dataHoraAtual->tm_mon+1, dataHoraAtual->tm_year+1900);
 
   return 0;
 }

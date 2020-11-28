@@ -1,0 +1,12 @@
+Entrada:
+Hora 23:21:44 Data 27/11/2020 
+Nome: joao
+Codigo: 123
+Codigo Prioridade: 2
+Tamanho Arquivo:111111
+Saida: 
+Hora 23:22:8 Data 27/11/2020 
+Nome: joao
+Codigo: 123
+Codigo Prioridade: 2
+Tamanho Arquivo:111111
