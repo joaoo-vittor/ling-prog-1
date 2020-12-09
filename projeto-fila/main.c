@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <ctype.h>
 #include <time.h>
 
 
@@ -11,10 +12,8 @@ typedef struct dadoNo {
   char nome[20];
   int tamArq;
   int tempoFila;
-  char dataEntrada[10];
-  char horaEntrada[8];
-  char dataSaida[10];
-  char horaSaida[8];
+  char dataEnt[10];
+  char horaEnt[10];
 } DadoNo;
 
 
@@ -32,25 +31,28 @@ typedef struct fila {
 
 Fila * criaFila();
 int menu();
-void menuCadastro();
+void menuCadastro(Fila * filaAux, Fila * origFila);
+void auxMenu(Fila * filaAux, Fila * origFila);
 void menuAtendimento(Fila * filaAux, Fila * origFila);
-void opcao(int opcao, Fila * filaAux, Fila * origFila);
-void opcaoCadastro(int opcao);
+void opcao(char opcao, Fila * filaAux, Fila * origFila);
 void opcaoAtendimento(Fila * filaAux, Fila * origFila);
 void cadastraCliente();
 void atenderCliente(Fila * fila);
 void inserir(Fila * fila, DadoNo dado);
 void exiberFila(Fila * fila, int tipoExibicao);
 void removeNo(Fila * fila);
+No * naPosicao(Fila * fila, int indice);
+int indiceDoNo(Fila * fila, No * no);
+void trocarNo(Fila * fila, No * primeiroNo, No * segundoNo);
+No * minimo(Fila * fila, int indice, int tipo);
+No * maximo(Fila * fila, int indice, int tipo);
 int vazia(Fila * fila);
 void inserirClienteEmFila(Fila * origFila, Fila * auxFila);
 void alterarCodigoClienteArq();
 void alterarCodigoClientePrioridadeArq();
 void limpaArquivo(char nome[]);
 int * verifCodigos(int * array, int codigo, int tam);
-void alterarCodigo(Fila * origFila, Fila * auxFila, int tipoCodigo);
 int * verificaCodigo(Fila * fila, int codigo);
-// https://www.youtube.com/watch?v=Rl3500be6Ns
 void ordernar(Fila * fila, int tipo);
 int * verificaTempoEmFila(Fila * fila);
 void guardaEmArquivo(DadoNo dado);
@@ -61,23 +63,24 @@ int verificaCodigoEmArquivo(int codigoVerif);
 int tamanhoArquivo(char nome[], int tipoArq);
 void exibirClienteDB();
 void limpabuffer();
-
+ 
 
 int main() {
-
   Fila * origFila = criaFila();
   Fila * auxFila = criaFila();
   
   inicializaArquivo();
 
-  int op;
-  
+  char op;
 
   do {
     op = menu();
     opcao(op, auxFila, origFila);
+    limpabuffer();
   } while (1);
 
+  free(origFila);
+  free(auxFila);
   return 0;
 }
 
@@ -103,6 +106,7 @@ void inserir(Fila * fila, DadoNo dado) {
 
   if (fila->tamFila == 0) {
     no->dado = dado;
+    no->dado.tempoFila = 0;
     no->prox = NULL;
     fila->cabeca = no;
     fila->tamFila++;
@@ -113,6 +117,7 @@ void inserir(Fila * fila, DadoNo dado) {
     }
     no->prox = NULL;
     no->dado = dado;
+    no->dado.tempoFila = 0;
     temp->prox = no;
     fila->tamFila++;
   }
@@ -144,7 +149,7 @@ int * verificaCodigo(Fila * fila, int codigo) {
 
 void exiberFila(Fila * fila, int tipoExibicao) {
   if (vazia(fila)) {
-    printf("\n Lista vazia\n");
+    printf("\n\t\tFila vazia\n");
     sleep(3);
     system("clear");
     return;
@@ -155,20 +160,20 @@ void exiberFila(Fila * fila, int tipoExibicao) {
   system("clear");
 
   if (tipoExibicao == 1) {
-    printf(" Fila de atendimento: \n\n");
+    printf("\t\tFila de atendimento: \n\n");
   } else {
-    printf(" Base de Dados:\n\n");
+    printf("\t\tBase de Dados:\n\n");
   }
 
   while (apontador != NULL) {
     if (tipoExibicao == 1) {
-      printf(" | Nome: %s, Codigo: %d, Codigo de prioridade: %d, Tamanho do arquivo: %d, Tempo em fila: %d | \n",
+      printf("\t\t| Nome: %s, Codigo: %d, Codigo de prioridade: %d, Tamanho do arquivo: %d, Tempo em fila: %d | \n",
       strtok(apontador->dado.nome, "\n"), apontador->dado.codigo, apontador->dado.codigoDePrioridade
       , apontador->dado.tamArq, apontador->dado.tempoFila);
-      printf("\t\t\t\t\t^\n");
-      printf("\t\t\t\t\t|\n");
+      printf("\t\t\t\t\t\t\t\t^\n");
+      printf("\t\t\t\t\t\t\t\t|\n");
     } else {
-      printf(" Nome: %s\n Codigo: %d\n Codigo de prioridade: %d\n",
+      printf("\t\tNome: %s\n\t\tCodigo: %d\n\t\tCodigo de prioridade: %d\n",
       strtok(apontador->dado.nome, "\n"), apontador->dado.codigo, apontador->dado.codigoDePrioridade);
       printf("\n");
     }
@@ -184,14 +189,14 @@ void removeNo(Fila * fila) {
   if (!vazia(fila)) {
     No * auxPonteiro = fila->cabeca;
 
-    guardarLog(auxPonteiro, 2);
+    guardarLog(auxPonteiro, 1);
 
-    printf("\n O cliente %s foi atendido!\n\n", strtok(auxPonteiro->dado.nome, "\n"));
+    printf("\n\t\tO cliente %s foi atendido!\n\n", strtok(auxPonteiro->dado.nome, "\n"));
     fila->cabeca = auxPonteiro->prox;
     free(auxPonteiro);
     fila->tamFila--;
   } else {
-    printf(" Não tem clientes na fila de atendimento\n");
+    printf("\n\t\tNão tem clientes na fila de atendimento\n");
     return;
   }
 
@@ -220,9 +225,16 @@ void removeNo(Fila * fila) {
 
 
 void inserirClienteEmFila(Fila * origFila, Fila * auxFila) {
+
+  time_t segundos;
+  struct tm * dataHora;
+
+  time(&segundos);
+
+  dataHora = localtime(&segundos);
   
   if (vazia(auxFila)) {
-    printf(" Base de dados esta vazia\n");
+    printf("\t\tBase de dados esta vazia\n");
     return;
   }
 
@@ -234,7 +246,7 @@ void inserirClienteEmFila(Fila * origFila, Fila * auxFila) {
   int codigo, aux = 1;
 
   do {
-    printf(" insira o codigo do cliente: ");
+    printf("\t\tinsira o codigo do cliente: ");
     scanf("%d", &codigo);
 
     
@@ -242,7 +254,7 @@ void inserirClienteEmFila(Fila * origFila, Fila * auxFila) {
 
 
     if (estaEmFila[0]) {
-      printf("\n O cliente com o codigo %d já esta na fila\n\n", codigo);
+      printf("\n\t\tO cliente com o codigo %d já esta na fila\n\n", codigo);
       estaEmFila[0] = 0;
       estaEmFila[1] = 0;
       estaEmFila[2] = 0;
@@ -252,7 +264,7 @@ void inserirClienteEmFila(Fila * origFila, Fila * auxFila) {
       emFila = verificaCodigo(auxFila, codigo);
       
       if (emFila[0] != 1) {
-        printf(" Codigo não encontrado\n");
+        printf("\t\tCodigo não encontrado\n");
         emFila[0] = 0;
         emFila[1] = 0;
         emFila[2] = 0;
@@ -278,10 +290,12 @@ void inserirClienteEmFila(Fila * origFila, Fila * auxFila) {
     auxPonteiroAuxFila = auxPonteiroAuxFila->prox;
   }
 
-  printf(" insira tamanho do arquivo: ");
+  printf("\t\tinsira tamanho do arquivo: ");
   scanf("%d", &auxPonteiroAuxFila->dado.tamArq);
 
   No * auxPonteiroOrigFila = (No*) malloc(sizeof(No));
+
+  char data[10];
 
   if (vazia(origFila)) {
     auxPonteiroOrigFila->dado = auxPonteiroAuxFila->dado;
@@ -298,8 +312,12 @@ void inserirClienteEmFila(Fila * origFila, Fila * auxFila) {
     auxPont->prox = auxPonteiroOrigFila;
     origFila->tamFila++;
   }
+
+  strftime(data, 10, "%d/%m/%y", dataHora);
+  strcpy(auxPonteiroOrigFila->dado.dataEnt, data);
+  strcpy(auxPonteiroOrigFila->dado.horaEnt, __TIME__);
   
-  printf("\n O cliente %s foi inserido na fila\n\n", strtok(auxPonteiroOrigFila->dado.nome, "\n"));
+  printf("\n\t\tO cliente %s foi inserido na fila\n\n", strtok(auxPonteiroOrigFila->dado.nome, "\n"));
 
   int * tempFila;
 
@@ -315,8 +333,6 @@ void inserirClienteEmFila(Fila * origFila, Fila * auxFila) {
 
   tempFila[0] = 0;
   tempFila[1] = 0;
-
-  guardarLog(auxPonteiroOrigFila, 1);
 
 }
 
@@ -347,190 +363,121 @@ int * verificaTempoEmFila(Fila * fila) {
 }
 
 
-void ordernar(Fila * fila, int tipo) {
-   if (vazia(fila)) {
-    return;
-  }
+No * noNaPosicao(Fila * fila, int indice) {
+  
+  if (indice >= 0 & indice < fila->tamFila) {
+    No * auxPont = fila->cabeca;
+    int i;
 
-  No * i;
-  No * j;
-
-  for (i = fila->cabeca; i->prox != NULL; i = i->prox) {
-    No * maior = i;
-    for (j = i->prox; j != NULL; j = j->prox) {
-      if (tipo == 1) {
-        if (j->dado.codigoDePrioridade >= maior->dado.codigoDePrioridade) {
-          maior = j;
-        }
-      } else {
-        if (j->dado.tempoFila >= maior->dado.tempoFila) {
-          maior = j;
-        }
-      }
+    for (i = 0; i < indice; i++) {
+      auxPont = auxPont->prox;
     }
 
-    int auxCodigo = i->dado.codigo;
-    int auxTempo = i->dado.tempoFila;
-    int auxCodigoPrioridade = i->dado.codigoDePrioridade;
-    int auxTamArq = i->dado.tamArq;
-
-    char auxNomeA[20];
-    char auxNomeB[20];
-    stpcpy(auxNomeA, i->dado.nome);
-    stpcpy(auxNomeB, maior->dado.nome);
-
-    i->dado.codigo = maior->dado.codigo;
-    i->dado.tempoFila = maior->dado.tempoFila;
-    i->dado.codigoDePrioridade = maior->dado.codigoDePrioridade;
-    i->dado.tamArq = maior->dado.tamArq;
-    stpcpy(i->dado.nome, auxNomeB);
-
-    maior->dado.codigo = auxCodigo;
-    maior->dado.tempoFila = auxTempo;
-    maior->dado.codigoDePrioridade = auxCodigoPrioridade;
-    maior->dado.tamArq = auxTamArq;
-    stpcpy(maior->dado.nome, auxNomeA);
+    return auxPont;
   }
+
+  return NULL;
 }
 
 
-void alterarCodigo(Fila * origFila, Fila * auxFila, int tipoCodigo) {
-  int codigoNovo, codigoCliente;
+int indiceDoNo(Fila * fila, No * no) {
+
+  if (!vazia(fila)) {
+    No * auxNo = fila->cabeca;
+    int indice = 0;
+    while (auxNo != no && auxNo != NULL) {
+      auxNo = auxNo->prox;
+      indice++;
+    }
+
+    if (auxNo != NULL) {
+      return indice;
+    }
+  }
+
+  return -1;
+}
+
+
+void trocarNo(Fila * fila, No * primeiroNo, No * segundoNo) {
   
-  if (vazia(auxFila)) {
-    printf("\n Base de Dados Vazia\n");
+  if (primeiroNo == segundoNo) {
     return;
   }
 
-  exiberFila(auxFila, 1);
+  int indicePrimeiroNo = indiceDoNo(fila, primeiroNo);
+  int indiceSegundoNo = indiceDoNo(fila, segundoNo);
 
-  int * verifCodigo;
+  if (indicePrimeiroNo > indiceSegundoNo) {
+    primeiroNo = segundoNo;
+    segundoNo = noNaPosicao(fila, indicePrimeiroNo);
 
-  limpabuffer();
-  
-  if (tipoCodigo == 1) {
-    printf(" ===== Alterar Codigo do Cliente ====\n");
-    do {
-      printf(" Codigo Antigo: ");
-      scanf("%d", &codigoCliente);
-      verifCodigo = verificaCodigo(auxFila, codigoCliente);
-      if (verifCodigo[1] == 0) {
-        printf("\n Codigo não encontrado\n");
-      }
-    } while (verifCodigo[0] != 1);
-
-    char auxOpc;
-    int aux = 1;
-
-    do {
-      printf(" Codigo Novo: ");
-      scanf("%d", &codigoNovo);
-      if (codigoNovo == verifCodigo[1]) {
-        printf(" Deseja inserir o mesmo codigo [S]im ou [N]ão : ");
-        limpabuffer();
-        scanf("%c", &auxOpc);
-      } else {
-        aux = 0;
-      }
-      if (auxOpc == 'S' || auxOpc == 's') {
-        verifCodigo[0] = 0;
-        verifCodigo[1] = 0;
-        return;
-      }
-      getchar();
-    } while (aux);
-
-  } else {
-    printf(" ==== Alterar Codigo de Prioridade do Cliente ====\n");
-    do {
-      printf(" Codigo do cliente: ");
-      scanf("%d", &codigoCliente);
-      verifCodigo = verificaCodigo(auxFila, codigoCliente);
-      if (verifCodigo[1] == 0) {
-        printf("\n Codigo não encontrado\n");
-      }
-    } while (verifCodigo[0] != 1);
-
-    char auxOpc;
-    int aux = 1;
-
-    do {
-
-      printf(" Novo Codigo de prioridade: ");
-      scanf("%d", &codigoNovo);
-
-      if (codigoNovo < 0 || codigoNovo > 4) {
-        printf(" Codigo de prioridade invalido, os codigos devem estar entra 1 e 4\n");
-      } else {
-
-        if (codigoNovo == verifCodigo[2]) {
-        printf(" Deseja inserir o mesmo codigo [S]im ou [N]ão : ");
-        limpabuffer();
-        scanf("%c", &auxOpc);
-        } else {
-          aux = 0;
-        }
-
-        if (auxOpc == 'S' || auxOpc == 's') {
-          verifCodigo[0] = 0;
-          verifCodigo[1] = 0;
-          verifCodigo[2] = 0;
-          return;
-        }
-      }  
-
-      getchar();
-    } while (aux);
-  }
-  
-  verifCodigo[0] = 0;
-  verifCodigo[1] = 0;
-  verifCodigo[2] = 0;
-
-  No * auxPontAuxFila = auxFila->cabeca;
-  No * auxPontOrigFila = origFila->cabeca;
-
-  while (auxPontAuxFila->dado.codigo != codigoCliente && auxPontAuxFila->prox != NULL) {
-    auxPontAuxFila = auxPontAuxFila->prox;
+    indicePrimeiroNo = indiceSegundoNo;
+    indiceSegundoNo = indiceDoNo(fila, segundoNo);
   }
 
-  if (tipoCodigo == 1) {
-    
-    if (auxPontAuxFila->dado.codigo == codigoCliente) {
-      auxPontAuxFila->dado.codigo = codigoNovo;
-    } else {
-      printf(" Codigo invalido\n");
-      return;
-    }
+  No * anteriorSegundoNo = noNaPosicao(fila, indiceSegundoNo - 1);
 
-    if (!vazia(origFila) && verificaCodigo(origFila, codigoCliente)[0]) {
-      while (auxPontOrigFila->dado.codigo != codigoCliente && auxPontOrigFila->prox != NULL) {
-        auxPontOrigFila = auxPontOrigFila->prox;
-      }
-      if (auxPontOrigFila->dado.codigo == codigoCliente) {
-        auxPontOrigFila->dado.codigo = codigoNovo;
-      } 
-    }
-
-    
+  if (primeiroNo == fila->cabeca) {
+    fila->cabeca = segundoNo;
   } else {
+    No * anteriorPrimeiroNo = noNaPosicao(fila, indicePrimeiroNo - 1);
+    anteriorPrimeiroNo->prox = segundoNo;
+  }
 
-    if (auxPontAuxFila->dado.codigo == codigoCliente) {
-      auxPontAuxFila->dado.codigoDePrioridade = codigoNovo;
-    } else {
-      printf("\n Codigo invalido\n");
-      return;
-    }
+  anteriorSegundoNo->prox = primeiroNo;
 
-    if (!vazia(origFila)) {
-      while (auxPontOrigFila->dado.codigo != codigoCliente && auxPontOrigFila->prox != NULL) {
-        auxPontOrigFila = auxPontOrigFila->prox;
-      } 
-      if (auxPontOrigFila->dado.codigo == codigoCliente) {
-        auxPontOrigFila->dado.codigoDePrioridade = codigoNovo;
+  No * aux = primeiroNo->prox;
+  primeiroNo->prox = segundoNo->prox;
+  segundoNo->prox = aux;
+}
+
+
+No * maximo(Fila * fila, int indice, int tipo) {
+
+  if (vazia(fila)) {
+    return NULL;
+  }
+
+  No * auxPont = noNaPosicao(fila, indice);
+
+  if (auxPont != NULL) {
+    
+    No * maxNo = auxPont;
+    
+    if (tipo == 1) {
+      while (auxPont != NULL) {
+        if (auxPont->dado.codigoDePrioridade > maxNo->dado.codigoDePrioridade) {
+          maxNo = auxPont;
+        }
+        auxPont = auxPont->prox;
       }
+
+      return maxNo;
+
+    } else {
+       while (auxPont != NULL) {
+        if (auxPont->dado.tempoFila > maxNo->dado.tempoFila) {
+          maxNo = auxPont;
+        }
+        auxPont = auxPont->prox;
+      }
+
+      return maxNo;
+
     }
 
+  }
+
+  return NULL;
+}
+
+
+void ordernar(Fila * fila, int tipo) {
+  int i;
+
+  for (i = 0; i < fila->tamFila; i++) {
+    trocarNo(fila, noNaPosicao(fila, i), maximo(fila, i, tipo));
   }
 }
 
@@ -544,16 +491,14 @@ int vazia(Fila * fila) {
 
 
 int menu() {
-  int opcao;
+  char opcao;
 
-  printf(" ========= Menu Principal =========\n");
-  printf(" 1 - Menu Cliente\n");
-  printf(" 2 - Menu Atendimento\n");
-  printf(" 3 - sair\n");
-  printf(" opção: ");
-  scanf("%d", &opcao);
-
-  
+  printf("\t\t========= Menu Principal =========\n");
+  printf("\t\t1 - Menu Cliente\n");
+  printf("\t\t2 - Menu Atendimento\n");
+  printf("\t\t3 - sair\n");
+  printf("\t\topção: ");
+  scanf("%c", &opcao);
 
   system("clear");
 
@@ -561,98 +506,119 @@ int menu() {
 }
 
 
-void menuCadastro() {
-  int opcao;
+void auxMenu(Fila * filaAux, Fila * origFila) {
+  char op;
+  limpabuffer();
+  op = menu();
+  opcao(op, filaAux, origFila);
+}
 
-  printf(" ========= Menu Cliente =========\n");
-  printf(" 1 - Cadastra Cliente\n");
-  printf(" 2 - Listar Clientes da Base de Dados\n");
-  printf(" 3 - Alterar Codigo do Cliente Em Arquivo\n");
-  printf(" 4 - Alterar Codigo de Prioridade do Cliente Em Arquivo\n");
-  printf(" 5 - Voltar ao Menu Anterior\n");
-  printf(" 6 - Sair\n");
-  printf(" opção: ");
-  scanf("%d", &opcao);
+
+void menuCadastro(Fila * filaAux, Fila * origFila) {
+  char opcao;
+
+  limpabuffer();
+
+  printf("\t\t========= Menu Cliente =========\n");
+  printf("\t\t1 - Cadastra Cliente\n");
+  printf("\t\t2 - Listar Clientes da Base de Dados\n");
+  printf("\t\t3 - Alterar Codigo do Cliente Em Arquivo\n");
+  printf("\t\t4 - Alterar Codigo de Prioridade do Cliente Em Arquivo\n");
+  printf("\t\t5 - Voltar ao Menu Anterior\n");
+  printf("\t\t6 - Sair\n");
+  printf("\t\topção: ");
+  scanf("%c", &opcao);
 
   system("clear");
 
-
   switch (opcao) {
-    case 1:
+    case '1':
       cadastraCliente();
+      menuCadastro(filaAux, origFila);
       break;
-    case 2:
+    case '2':
       exibirClienteDB();
+      menuCadastro(filaAux, origFila);
       break;
-    case 3:
+    case '3':
       // Alterar Codigo do Cliente em arquivo
       alterarCodigoClienteArq();
+      menuCadastro(filaAux, origFila);
       break;
-    case 4:
+    case '4':
       // Alterar Codigo de Prioridade do Cliente em arquivo
       alterarCodigoClientePrioridadeArq();
+      menuCadastro(filaAux, origFila);
       break;
-    case 5:
+    case '5':
+      auxMenu(filaAux, origFila);
       break;
-    case 6: 
+    case '6': 
       exit(1);
     default:
-      printf(" Opção invalida!\n");
+      printf("\t\tOpção invalida!\n");
+      menuCadastro(filaAux, origFila);
       break;
   }
-
 }
 
+
 void menuAtendimento(Fila * filaAux, Fila * origFila) {
-  int opcao;
+  char opcao;
 
   pegaDadosEmArquivo(filaAux);
 
-  printf(" ========= Menu Atendimento =========\n");
-  printf(" 1 - Atender Cliente\n");
-  printf(" 2 - Listar Fila de Atrendimento\n");
-  printf(" 3 - Inserir Cliente em Fila de Atendimento\n");
-  printf(" 4 - Voltar ao Menu Anterior\n");
-  printf(" 5 - sair\n");
-  printf(" opção: ");
-  scanf("%d", &opcao);
+  limpabuffer();
+
+  printf("\t\t========= Menu Atendimento =========\n");
+  printf("\t\t1 - Atender Cliente\n");
+  printf("\t\t2 - Listar Fila de Atrendimento\n");
+  printf("\t\t3 - Inserir Cliente em Fila de Atendimento\n");
+  printf("\t\t4 - Voltar ao Menu Anterior\n");
+  printf("\t\t5 - sair\n");
+  printf("\t\topção: ");
+  scanf("%s", &opcao);
 
   system("clear");
 
-
   switch (opcao) {
-    case 1:
+    case '1':
       removeNo(origFila);
+      menuAtendimento(filaAux, origFila);
       break;
-    case 2:
+    case '2':
       exiberFila(origFila, 1);
+      menuAtendimento(filaAux, origFila);
       break;
-    case 3:
+    case '3':
       inserirClienteEmFila(origFila, filaAux);
+      menuAtendimento(filaAux, origFila);
       break;
-    case 4:
+    case '4':
+      auxMenu(filaAux, origFila);
       break;
-    case 5:
+    case '5':
       exit(1);
     default:
-      printf(" Opção invalida!\n");
+      printf("\t\tOpção invalida!\n");
+      menuAtendimento(filaAux, origFila);
       break;
   }
 }
 
 
-void opcao(int opcao, Fila * filaAux, Fila * origFila) {
+void opcao(char opcao, Fila * filaAux, Fila * origFila) {
   switch (opcao) {
-    case 1:
-      menuCadastro();
+    case '1':
+      menuCadastro(filaAux, origFila);
       break;
-    case 2:
+    case '2':
       menuAtendimento(filaAux, origFila);
       break;
-    case 3:
+    case '3':
       exit(1);
     default:
-      printf(" Opção invalida!\n");
+      printf("\t\tOpção invalida!\n");
       break;
   }
 }
@@ -666,32 +632,30 @@ void cadastraCliente() {
   system("clear");
   limpabuffer();
 
-  printf(" insira o nome do cliente: ");
+  printf("\t\tinsira o nome do cliente: ");
   fgets(dado.nome, 20, stdin);
 
 
   do {
-    printf(" insira o codigo do cliente: ");
+    printf("\t\tinsira o codigo do cliente: ");
     scanf("%d", &codigoCli);
     auxVerif = verificaCodigoEmArquivo(codigoCli);
     if (auxVerif) {
-      printf(" Codigo já existe, tente outro!\n");
+      printf("\t\tCodigo já existe, tente outro!\n");
     }
   } while (auxVerif);
   dado.codigo = codigoCli;
 
   do {
-    printf(" insira o codigo de prioridade do cliente: ");
+    printf("\t\tinsira o codigo de prioridade do cliente: ");
     scanf("%d", &codigoPrio);
     if (codigoPrio < 0 || codigoPrio > 4) {
-      printf(" Codigo de prioridade invalido, os codigos devem estar entra 1 e 4\n");
+      printf("\t\tCodigo de prioridade invalido, os codigos devem estar entra 1 e 4\n");
     }
   } while (codigoPrio < 0 || codigoPrio > 4);
   dado.codigoDePrioridade = codigoPrio;
 
   guardaEmArquivo(dado);
-  limpabuffer();
-  system("clear");
 }
 
 
@@ -709,7 +673,7 @@ void guardaEmArquivo(DadoNo dado) {
     fprintf(codigoPrioridade, "%d\n", dado.codigoDePrioridade);
     fprintf(nome, "%s", dado.nome);
   } else {
-    printf(" Não foi possivel criar o arquivo,\n entre em contato com o desenvolvedor.\n ");
+    printf("\t\tNão foi possivel criar o arquivo,\n\t\tentre em contato com o desenvolvedor.\n");
   }
 
   fclose(codigo);
@@ -745,7 +709,7 @@ int tamanhoArquivo(char nome[], int tipoArq) {
       }
     }
   } else {
-    printf("Arquivo não encontrado!\n");
+    printf("\t\tArquivo não encontrado!\n");
   }
 
   fclose(arquivo);
@@ -758,6 +722,7 @@ void guardarLog(No * noDado, int tipo) {
   FILE * log;
   time_t segundos;
   struct tm * dataHoraAtual;
+  char data[10];
 
   time(&segundos);
 
@@ -766,23 +731,18 @@ void guardarLog(No * noDado, int tipo) {
   log = fopen("logCliente.txt", "a");
 
   if (log) {
-    if (tipo == 1) {
-      fprintf(log, "Entrada:\nHora %d:%d:%d Data %d/%d/%d \n", 
-      dataHoraAtual->tm_hour, dataHoraAtual->tm_min, dataHoraAtual->tm_sec, 
-      dataHoraAtual->tm_mday, dataHoraAtual->tm_mon+1, dataHoraAtual->tm_year+1900);
 
-      fprintf(log, "Nome: %s\nCodigo: %d\nCodigo Prioridade: %d\nTamanho Arquivo:%d\n", 
-      noDado->dado.nome, noDado->dado.codigo, noDado->dado.codigoDePrioridade, noDado->dado.tamArq);
-    } else {
-      fprintf(log, "Saida: \nHora %d:%d:%d Data %d/%d/%d \n", 
-      dataHoraAtual->tm_hour, dataHoraAtual->tm_min, dataHoraAtual->tm_sec, 
-      dataHoraAtual->tm_mday, dataHoraAtual->tm_mon+1, dataHoraAtual->tm_year+1900);
+    strftime(data, 10, "%d/%m/%y", dataHoraAtual);
 
-      fprintf(log, "Nome: %s\nCodigo: %d\nCodigo Prioridade: %d\nTamanho Arquivo:%d\n", 
+    fprintf(log, "Entrada: Hora %s Data %s \n", noDado->dado.horaEnt, noDado->dado.dataEnt);   
+    
+    fprintf(log, "Nome: %s\nCodigo: %d\nCodigo Prioridade: %d\nTamanho Arquivo:%d\n", 
       noDado->dado.nome, noDado->dado.codigo, noDado->dado.codigoDePrioridade, noDado->dado.tamArq);
-    }
+
+    fprintf(log, "Saida: Hora %s Data %s \n--------------------------------------\n", __TIME__, data); 
+
   } else {
-    printf(" Não foi possivel criar o arquivo,\n entre em contato com o desenvolvedor.\n ");
+    printf("\t\tNão foi possivel criar o arquivo,\n entre em contato com o desenvolvedor.\n ");
   }
 
   fclose(log);
@@ -831,7 +791,7 @@ void pegaDadosEmArquivo(Fila * fila) {
     }
     
   } else {
-    printf(" Não foi possivel criar o arquivo,\n entre em contato com o desenvolvedor.\n ");
+    printf("\t\tNão foi possivel criar o arquivo,\n entre em contato com o desenvolvedor.\n ");
   }
 
   fclose(codigo);
@@ -855,7 +815,7 @@ int verificaCodigoEmArquivo(int codigoVerif) {
       }
     }
   } else {
-    printf("Arquivo não encontrado!\n");
+    printf("\t\tArquivo não encontrado!\n");
   }
 
   fclose(codigo);
@@ -883,22 +843,22 @@ void exibirClienteDB() {
     tamCodArq = tamanhoArquivo("codigoCliente.txt", 2);
     tamCodPriArq = tamanhoArquivo("codigoPrioridade.txt", 2);
     tamNomeArq = tamanhoArquivo("nomeCliente.txt", 1);
+
+    printf("\t\tBase de Dados:\n");
     
-    // printf("%d %d %d \n", tamNomeArq, tamCodPriArq, tamCodArq);
     for (i = 0; i < tamNomeArq; i++) {
       fscanf(codigo, "%d", &codigoArq);
       fscanf(codigoPrioridade, "%d", &codigoPrioArq);
       fscanf(nome, "%s", nomeArq);
       printf("\n");
-      printf(" Nome: %s \n", strtok(nomeArq, "\n"));
-      printf(" Codigo: %d \n", codigoArq);
-      printf(" Codigo Prioridade: %d \n", codigoPrioArq);
+      printf("\t\tNome: %s \n", strtok(nomeArq, "\n"));
+      printf("\t\tCodigo: %d \n", codigoArq);
+      printf("\t\tCodigo Prioridade: %d \n", codigoPrioArq);
       printf("\n");
     }
   } else {
-    printf("Arquivo não encontrado!\n");
+    printf("\t\tArquivo não encontrado!\n");
   }
-
 
   fclose(codigo);
   fclose(codigoPrioridade);
@@ -917,7 +877,7 @@ void alterarCodigoClienteArq() {
   if (tamArq > 0) {
     exibirClienteDB();
   } else {
-    printf(" Base de Dados vazia\n");
+    printf("\t\tBase de Dados vazia\n");
     return;
   }
   
@@ -928,15 +888,16 @@ void alterarCodigoClienteArq() {
       fscanf(codigo, "%d", &arrayCodigo[i]);
     }
   } else {
-    printf("Arquivo não encontrado!\n");
+    printf("\t\tArquivo não encontrado!\n");
   }
+
   fclose(codigo);
 
   int codigoAntigo, codigoNovo;
   int * verifCodigo;
 
   do {
-    printf(" Digite o Codigo Antigo: ");
+    printf("\t\tDigite o Codigo Antigo: ");
     scanf("%d", &codigoAntigo);
     verifCodigo = verifCodigos(arrayCodigo, codigoAntigo, tamArq);
     if (verifCodigo[0] == 0) {
@@ -950,26 +911,28 @@ void alterarCodigoClienteArq() {
   do {
     verifCodigo[0] = 0;
     verifCodigo[1] = 0;
-    printf(" Digite o Novo Codigo: ");
+    printf("\t\tDigite o Novo Codigo: ");
     scanf("%d", &codigoNovo);
     verifCodigo = verifCodigos(arrayCodigo, codigoNovo, tamArq);
     if (verifCodigo[0] == 1) {
-      printf(" Codigo %d já exite, tente outro.\n", codigoNovo);
+      printf("\t\tCodigo %d já exite, tente outro.\n", codigoNovo);
     }
   } while (verifCodigo[0]);
 
   verifCodigo = verifCodigos(arrayCodigo, codigoAntigo, tamArq);
 
+
   arrayCodigo[verifCodigo[1]] = codigoNovo;
   limpaArquivo("codigoCliente.txt");
 
+  FILE * cod;
 
-  codigo = fopen("codigoCliente.txt", "a");
+  cod = fopen("codigoCliente.txt", "a");
   for (i = 0; i < tamArq; i++) {
-    fprintf(codigo, "%d\n", arrayCodigo[i]);
+    fprintf(cod, "%d\n", arrayCodigo[i]);
   }
 
-  fclose(codigo);
+  fclose(cod);
   free(arrayCodigo);
 }
 
@@ -989,7 +952,7 @@ void alterarCodigoClientePrioridadeArq() {
   if (tamCodArq > 0) {
     exibirClienteDB();
   } else {
-    printf(" Base de Dados vazia\n");
+    printf("\t\tBase de Dados vazia\n");
     return;
   }
   
@@ -1002,7 +965,7 @@ void alterarCodigoClientePrioridadeArq() {
       fscanf(codigoPrioridade, "%d", &arrayCodigoPrio[i]);
     }
   } else {
-    printf("Arquivo não encontrado!\n");
+    printf("\t\tArquivo não encontrado!\n");
   }
   fclose(codigo);
   fclose(codigoPrioridade);
@@ -1011,7 +974,7 @@ void alterarCodigoClientePrioridadeArq() {
   int * verifCodigo;
 
   do {
-    printf(" Digite o Codigo Cliente: ");
+    printf("\t\tDigite o Codigo Cliente: ");
     scanf("%d", &codigoCli);
     verifCodigo = verifCodigos(arrayCodigo, codigoCli, tamCodArq);
     if (verifCodigo[0] == 0) {
@@ -1023,10 +986,10 @@ void alterarCodigoClientePrioridadeArq() {
 
 
   do {
-    printf(" Digite o Novo Codigo de Prioridade: ");
+    printf("\t\tDigite o Novo Codigo de Prioridade: ");
     scanf("%d", &codigoNovo);
     if (codigoNovo < 0 || codigoNovo > 4) {
-      printf(" Codigo de prioridade invalido, os codigos devem estar entra 1 e 4\n");
+      printf("\t\tCodigo de prioridade invalido, os codigos devem estar entra 1 e 4\n");
     }
   } while (codigoNovo < 0 || codigoNovo > 4);
 

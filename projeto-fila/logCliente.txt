@@ -1,36 +1,56 @@
-Entrada:
-Hora 23:24:22 Data 27/11/2020 
+Entrada: Hora 16:43:50 Data 04/12/20 
 Nome: joao
-Codigo: 123
+Codigo: 321
 Codigo Prioridade: 4
-Tamanho Arquivo:11111
-Saida: 
-Hora 23:24:59 Data 27/11/2020 
-Nome: joao
-Codigo: 123
-Codigo Prioridade: 4
-Tamanho Arquivo:11111
-Entrada:
-Hora 23:25:35 Data 27/11/2020 
-Nome: joao
-Codigo: 123
-Codigo Prioridade: 4
-Tamanho Arquivo:3333333
-Entrada:
-Hora 23:25:50 Data 27/11/2020 
+Tamanho Arquivo:321321
+Saida: Hora 16:43:50 Data 04/12/20 
+--------------------------------------
+Entrada: Hora 16:43:50 Data 04/12/20 
+Nome: maria
+Codigo: 155
+Codigo Prioridade: 3
+Tamanho Arquivo:155155
+Saida: Hora 16:43:50 Data 04/12/20 
+--------------------------------------
+Entrada: Hora 16:43:50 Data 04/12/20 
+Nome: freud
+Codigo: 654
+Codigo Prioridade: 2
+Tamanho Arquivo:654654
+Saida: Hora 16:43:50 Data 04/12/20 
+--------------------------------------
+Entrada: Hora 16:43:50 Data 04/12/20 
 Nome: jose
+Codigo: 123
+Codigo Prioridade: 1
+Tamanho Arquivo:123123
+Saida: Hora 16:43:50 Data 04/12/20 
+--------------------------------------
+Entrada: Hora 16:43:50 Data 04/12/20 
+Nome: joao
+Codigo: 321
+Codigo Prioridade: 4
+Tamanho Arquivo:321321
+Saida: Hora 16:43:50 Data 04/12/20 
+--------------------------------------
+Entrada: Hora 16:43:50 Data 04/12/20 
+Nome: maria
+Codigo: 155
+Codigo Prioridade: 3
+Tamanho Arquivo:155155
+Saida: Hora 16:43:50 Data 04/12/20 
+--------------------------------------
+Entrada: Hora 16:43:50 Data 04/12/20 
+Nome: joao
+Codigo: 321
+Codigo Prioridade: 4
+Tamanho Arquivo:321321
+Saida: Hora 16:43:50 Data 04/12/20 
+--------------------------------------
+Entrada: Hora 16:43:50 Data 04/12/20 
+Nome: bauman
 Codigo: 153
 Codigo Prioridade: 1
-Tamanho Arquivo:55555
-Saida: 
-Hora 23:26:42 Data 27/11/2020 
-Nome: joao
-Codigo: 123
-Codigo Prioridade: 4
-Tamanho Arquivo:3333333
-Saida: 
-Hora 23:26:56 Data 27/11/2020 
-Nome: jose
-Codigo: 153
-Codigo Prioridade: 1
-Tamanho Arquivo:55555
+Tamanho Arquivo:153153
+Saida: Hora 16:43:50 Data 04/12/20 
+--------------------------------------
